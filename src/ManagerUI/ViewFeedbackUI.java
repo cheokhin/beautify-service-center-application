@@ -2,7 +2,6 @@ package ManagerUI;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import UI.MainUI;
 import java.awt.*;
 import java.io.*;
 
@@ -14,16 +13,14 @@ public class ViewFeedbackUI extends JPanel {
 
     public ViewFeedbackUI() {
         buildUI();
-
-        // 🔥 SPA Routing
-        MainUI.instance.mainContainer.add(this, "VIEW_FEEDBACK");
-        MainUI.instance.showPage("VIEW_FEEDBACK");
     }
 
     private void buildUI() {
+        setOpaque(false); // 🔥 Transparent background
         setLayout(new BorderLayout());
 
-        JPanel bg = new GradientPanel();
+        JPanel bg = new JPanel();
+        bg.setOpaque(false);
         bg.setLayout(new GridBagLayout());
         add(bg, BorderLayout.CENTER);
 
@@ -43,7 +40,7 @@ public class ViewFeedbackUI extends JPanel {
         JTextArea textArea = new JTextArea();
         textArea.setEditable(false);
         textArea.setBackground(new Color(20, 20, 30));
-        textArea.setForeground(new Color(220, 230, 255)); // Light blue-white for readability
+        textArea.setForeground(new Color(220, 230, 255));
         textArea.setFont(new Font("Consolas", Font.PLAIN, 13));
         textArea.setBorder(new EmptyBorder(10, 10, 10, 10));
 
@@ -63,8 +60,8 @@ public class ViewFeedbackUI extends JPanel {
         loadCustomerComments(textArea);
 
         backBtn.addActionListener(e -> {
-            MainUI.instance.showPage("MANAGER_DASHBOARD");
-            MainUI.instance.mainContainer.remove(this); // Clean up memory
+            ManagerUI.instance.showRightPage("DASHBOARD");
+            ManagerUI.instance.rightContainer.remove(this); 
         });
     }
 
@@ -85,26 +82,16 @@ public class ViewFeedbackUI extends JPanel {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.trim().isEmpty()) continue;
-
                 String[] data = line.split(",");
                 if (data.length < 3) continue;
 
-                String appID = data[0];
-                String techID = data[1];
-                String feedback = data[2];
-                String date = (data.length >= 4) ? data[3] : "-";
-
-                textArea.append(
-                        "Appointment : " + appID +
-                        "\nTechnician  : " + techID +
-                        "\nFeedback    : " + feedback +
-                        "\nDate        : " + date +
-                        "\n-----------------------------\n"
-                );
+                textArea.append("Appointment : " + data[0] +
+                        "\nTechnician  : " + data[1] +
+                        "\nFeedback    : " + data[2] +
+                        "\nDate        : " + ((data.length >= 4) ? data[3] : "-") +
+                        "\n-----------------------------\n");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void loadCustomerComments(JTextArea textArea) {
@@ -117,72 +104,45 @@ public class ViewFeedbackUI extends JPanel {
         }
 
         try {
-            // ===== Technician Comments =====
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line;
-
             while ((line = br.readLine()) != null) {
                 if (line.trim().isEmpty()) continue;
-
                 String[] data = line.split(",");
                 if (data.length < 4) continue;
 
-                String appID = data[0];
-                String customerID = data[1];
-                String role = data[2];
-                String comment = data[3];
-                String rating = (data.length >= 5) ? data[4] : "-";
-                String date = (data.length >= 6) ? data[5] : "-";
-
-                if (role.equalsIgnoreCase("Technician")) {
-                    String techID = getTechnicianFromAppointment(appID);
-                    textArea.append(
-                            "Appointment : " + appID +
-                            "\nCustomer    : " + customerID +
+                if (data[2].equalsIgnoreCase("Technician")) {
+                    String techID = getTechnicianFromAppointment(data[0]);
+                    textArea.append("Appointment : " + data[0] +
+                            "\nCustomer    : " + data[1] +
                             "\nTo          : Technician (" + techID + ")" +
-                            "\nComment     : " + comment +
-                            "\nRating      : " + rating +
-                            "\nDate        : " + date +
-                            "\n-----------------------------\n"
-                    );
+                            "\nComment     : " + data[3] +
+                            "\nRating      : " + ((data.length >= 5) ? data[4] : "-") +
+                            "\nDate        : " + ((data.length >= 6) ? data[5] : "-") +
+                            "\n-----------------------------\n");
                 }
             }
             br.close();
 
-            // ===== Counter Staff Comments =====
             textArea.append("\n=== Counter Staff Comments ===\n\n");
             BufferedReader br2 = new BufferedReader(new FileReader(file));
-
             while ((line = br2.readLine()) != null) {
                 if (line.trim().isEmpty()) continue;
-
                 String[] data = line.split(",");
                 if (data.length < 4) continue;
 
-                String appID = data[0];
-                String customerID = data[1];
-                String role = data[2];
-                String comment = data[3];
-                String rating = (data.length >= 5) ? data[4] : "-";
-                String date = (data.length >= 6) ? data[5] : "-";
-
-                if (role.equalsIgnoreCase("CounterStaff")) {
-                    textArea.append(
-                            "Appointment : " + appID +
-                            "\nCustomer    : " + customerID +
+                if (data[2].equalsIgnoreCase("CounterStaff")) {
+                    textArea.append("Appointment : " + data[0] +
+                            "\nCustomer    : " + data[1] +
                             "\nTo          : Counter Staff" +
-                            "\nComment     : " + comment +
-                            "\nRating      : " + rating +
-                            "\nDate        : " + date +
-                            "\n-----------------------------\n"
-                    );
+                            "\nComment     : " + data[3] +
+                            "\nRating      : " + ((data.length >= 5) ? data[4] : "-") +
+                            "\nDate        : " + ((data.length >= 6) ? data[5] : "-") +
+                            "\n-----------------------------\n");
                 }
             }
             br2.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private String getTechnicianFromAppointment(String appID) {
@@ -190,13 +150,9 @@ public class ViewFeedbackUI extends JPanel {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] d = line.split(",");
-                if (d.length >= 9 && d[0].trim().equals(appID)) {
-                    return d[8].trim();
-                }
+                if (d.length >= 9 && d[0].trim().equals(appID)) return d[8].trim();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { }
         return "-";
     }
 }

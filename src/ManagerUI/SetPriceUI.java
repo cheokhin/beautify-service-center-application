@@ -1,7 +1,6 @@
 package ManagerUI;
 
 import javax.swing.*;
-import UI.MainUI;
 import java.awt.*;
 import java.io.*;
 
@@ -12,19 +11,17 @@ public class SetPriceUI extends JPanel {
     private static final long serialVersionUID = 1L;
     private JTextField normalField, majorField;
 
-    // 🔥 Removed String id parameter
     public SetPriceUI() {
         buildUI();
-
-        // 🔥 SPA Routing
-        MainUI.instance.mainContainer.add(this, "SET_PRICE");
-        MainUI.instance.showPage("SET_PRICE");
+        // 🔥 ALL SIZING AND ROUTING LOGIC REMOVED! ManagerUI handles it now.
     }
 
     private void buildUI() {
+        setOpaque(false); // 🔥 Makes this whole panel transparent
         setLayout(new BorderLayout());
 
-        JPanel bg = new GradientPanel();
+        JPanel bg = new JPanel();
+        bg.setOpaque(false); // 🔥 Replaced GradientPanel with a transparent JPanel
         bg.setLayout(new GridBagLayout());
         add(bg, BorderLayout.CENTER);
 
@@ -78,8 +75,9 @@ public class SetPriceUI extends JPanel {
         saveBtn.addActionListener(e -> savePrices());
         
         backBtn.addActionListener(e -> {
-            MainUI.instance.showPage("MANAGER_DASHBOARD");
-            MainUI.instance.mainContainer.remove(this); 
+            // 🔥 Routes inside the ManagerUI right side!
+            ManagerUI.instance.showRightPage("DASHBOARD");
+            ManagerUI.instance.rightContainer.remove(this); 
         });
     }
 

@@ -2,12 +2,12 @@ package ManagerUI;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import UI.MainUI;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 
 import UI.Components.*;
+import UI.MainUI;
 
 public class ManageUserUI extends JPanel {
 
@@ -18,18 +18,16 @@ public class ManageUserUI extends JPanel {
 
     public ManageUserUI(String id) {
         this.managerId = id;
-
         buildUI();
-
-        // 🔥 SPA Routing
-        MainUI.instance.mainContainer.add(this, "MANAGE_USERS");
-        MainUI.instance.showPage("MANAGE_USERS");
+        // 🔥 ALL SIZING AND ROUTING LOGIC REMOVED! ManagerUI handles it now.
     }
 
     private void buildUI() {
+        setOpaque(false); // 🔥 Makes this whole panel transparent to let the main gradient show
         setLayout(new BorderLayout());
 
-        JPanel bg = new GradientPanel();
+        JPanel bg = new JPanel();
+        bg.setOpaque(false); // 🔥 Replaced GradientPanel with a transparent JPanel
         bg.setLayout(new GridBagLayout());
         add(bg, BorderLayout.CENTER);
 
@@ -87,11 +85,12 @@ public class ManageUserUI extends JPanel {
         delBtn.addActionListener(e -> deleteUser());
 
         backBtn.addActionListener(e -> {
-            MainUI.instance.showPage("MANAGER_DASHBOARD");
-            MainUI.instance.mainContainer.remove(this); // Clean up memory
+            // 🔥 Routes inside the ManagerUI right side!
+            ManagerUI.instance.showRightPage("DASHBOARD");
+            ManagerUI.instance.rightContainer.remove(this); 
         });
 
-        loadUsers(); // Load initially
+        loadUsers(); 
     }
 
     private String getFileName() {
@@ -125,7 +124,6 @@ public class ManageUserUI extends JPanel {
     private void showAddUserDialog() {
         String role = (String) roleSelect.getSelectedItem();
         
-        // Styled Form Dialog
         JDialog dialog = new JDialog(MainUI.instance, "Add " + role, true);
         dialog.setUndecorated(true);
         dialog.setSize(400, 550);
@@ -168,7 +166,7 @@ public class ManageUserUI extends JPanel {
         if (role.equals("Technician")) {
             addFormField(formGrid, "Skills:", skillsField);
             addFormField(formGrid, "Experience (Yrs):", expField);
-            dialog.setSize(400, 620); // Expand dialog for extra fields
+            dialog.setSize(400, 620); 
         }
 
         JButton saveBtn = new ModernButton("Save Record");
@@ -241,7 +239,6 @@ public class ManageUserUI extends JPanel {
                 }
             }
             
-            // Avoid Duplicate ID
             try (BufferedReader br = new BufferedReader(new FileReader(getFileName()))) {
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -432,7 +429,6 @@ public class ManageUserUI extends JPanel {
         return btn;
     }
 
-    // Custom Input Dialog to replace JOptionPane.showInputDialog
     private String showModernInputDialog(String message) {
         JDialog dialog = new JDialog(MainUI.instance, true);
         dialog.setUndecorated(true);
@@ -455,7 +451,7 @@ public class ManageUserUI extends JPanel {
         styleField(input);
         panel.add(input);
 
-        String[] result = new String[1]; // Array hack to get value out of lambda
+        String[] result = new String[1]; 
 
         JButton okBtn = new ModernButton("OK");
         okBtn.setBounds(40, 110, 100, 30);

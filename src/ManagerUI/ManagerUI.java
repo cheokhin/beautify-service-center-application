@@ -15,65 +15,58 @@ public class ManagerUI extends JPanel implements UserDashboard {
 
     private static final long serialVersionUID = 1L;
 
+    public static ManagerUI instance; // 🔥 Shared instance for right-side routing
     private String loggedInId;
 
+    // 🔥 The new nested SPA container
+    public CardLayout rightCardLayout;
+    public JPanel rightContainer;
+
     public ManagerUI() {
-        // Empty constructor for dynamic instantiation in LogInUI
+        instance = this;
     }
 
-    // 🔥 Bridge constructor: Captures "Back" button clicks from unrefactored JFrames
     public ManagerUI(String id) {
+        instance = this;
         openMenu(id); 
     }
 
-    // ==========================================
-    // 🔥 SPA ROUTING & INITIALIZATION
-    // ==========================================
     @Override
     public void openMenu(String id) {
         this.loggedInId = id;
-        
         buildUI(); 
         
+        // Adds the whole Manager interface (Sidebar + Right Container) to MainUI
         MainUI.instance.mainContainer.add(this, "MANAGER_DASHBOARD");
         MainUI.instance.showPage("MANAGER_DASHBOARD");
     }
 
-    // ==========================================
-    // 🔥 UI BUILDER
-    // ==========================================
     private void buildUI() {
         setLayout(new BorderLayout()); 
 
-        // ================= BACKGROUND =================
         JPanel bg = new GradientPanel();
         bg.setLayout(new BorderLayout());
         add(bg, BorderLayout.CENTER);
 
-        // ================= SIDEBAR =================
+        // ================= SIDEBAR (STAYS FIXED) =================
         JPanel sidebar = new RoundedPanel(25, new Color(35, 35, 50));
         sidebar.setPreferredSize(new Dimension(200, 0));
         sidebar.setLayout(null);
         bg.add(sidebar, BorderLayout.WEST);
 
-        // ================= AVATAR =================
+        // Avatar
         JPanel avatar = new JPanel() {
             private static final long serialVersionUID = 1L;
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                // Glow (Blue)
                 g2.setColor(new Color(0, 200, 255, 80));
                 g2.fillOval(0, 0, getWidth(), getHeight());
-                // Circle (Blue)
                 g2.setColor(new Color(0, 200, 255));
                 g2.fillOval(5, 5, getWidth() - 10, getHeight() - 10);
-                // Head
                 g2.setColor(Color.WHITE);
                 g2.fillOval(32, 22, 26, 26);
-                // Body
                 g2.fillRoundRect(24, 50, 42, 28, 20, 20);
             }
         };
@@ -81,7 +74,7 @@ public class ManagerUI extends JPanel implements UserDashboard {
         avatar.setOpaque(false);
         sidebar.add(avatar);
 
-        // ================= MANAGER INFO =================
+        // Labels
         String managerName = getManagerName(this.loggedInId);
 
         JLabel nameLabel = new JLabel(managerName);
@@ -112,7 +105,6 @@ public class ManagerUI extends JPanel implements UserDashboard {
         welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
         sidebar.add(welcomeLabel);
 
-        // ================= TIME =================
         JLabel timeLabel = new JLabel();
         timeLabel.setBounds(20, 320, 160, 25);
         timeLabel.setForeground(Color.WHITE);
@@ -126,25 +118,38 @@ public class ManagerUI extends JPanel implements UserDashboard {
         });
         timer.start();
 
-        // ================= CENTER =================
-        JPanel centerWrapper = new JPanel(new GridBagLayout()); // Naturally centers the dashboard
-        centerWrapper.setOpaque(false);
-        bg.add(centerWrapper, BorderLayout.CENTER);
+        // ================= RIGHT SIDE CONTAINER =================
+        rightCardLayout = new CardLayout();
+        rightContainer = new JPanel(rightCardLayout);
+        rightContainer.setOpaque(false); // Makes it transparent to show the background gradient
+        bg.add(rightContainer, BorderLayout.CENTER);
 
-        // ================= MENU CARD =================
+        // Load the 6 buttons into the right side by default
+        rightContainer.add(createDashboardMenu(), "DASHBOARD");
+        rightCardLayout.show(rightContainer, "DASHBOARD");
+    }
+
+    // ================= ROUTER FOR RIGHT SIDE =================
+    public void showRightPage(String pageName) {
+        rightCardLayout.show(rightContainer, pageName);
+    }
+
+    // ================= DASHBOARD MENU (6 BUTTONS) =================
+    private JPanel createDashboardMenu() {
+        JPanel centerWrapper = new JPanel(new GridBagLayout()); 
+        centerWrapper.setOpaque(false);
+
         JPanel card = new RoundedPanel(25, new Color(35, 35, 50));
         card.setPreferredSize(new Dimension(360, 350));
         card.setLayout(null);
         centerWrapper.add(card);
 
-        // ================= TITLE =================
         JLabel title = new JLabel(" MANAGER DASHBOARD", SwingConstants.CENTER);
         title.setBounds(50, 20, 260, 30);
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         title.setForeground(Color.WHITE);
         card.add(title);
 
-        // ================= BUTTONS =================
         JButton manageBtn = createButton(" Manage Users", 70);
         JButton priceBtn = createButton(" Set Service Prices", 115);
         JButton feedbackBtn = createButton(" View Feedbacks", 160);
@@ -159,35 +164,40 @@ public class ManagerUI extends JPanel implements UserDashboard {
         card.add(profileBtn);
         card.add(logoutBtn);
 
-        // ================= ACTIONS =================
-
+        // 🔥 ACTIONS: These now inject the sub-pages directly into the rightContainer!
         priceBtn.addActionListener(e -> {
-            new SetPriceUI();
+            rightContainer.add(new SetPriceUI(), "SET_PRICE");
+            showRightPage("SET_PRICE");
         });
 
         manageBtn.addActionListener(e -> {
-            new ManageUserUI(this.loggedInId);
+            rightContainer.add(new ManageUserUI(this.loggedInId), "MANAGE_USERS");
+            showRightPage("MANAGE_USERS");
         });
 
         feedbackBtn.addActionListener(e -> {
-            new ViewFeedbackUI();
+            rightContainer.add(new ViewFeedbackUI(), "VIEW_FEEDBACK");
+            showRightPage("VIEW_FEEDBACK");
         });
 
         reportBtn.addActionListener(e -> {
-            new AnalyzedReportUI();
+            rightContainer.add(new AnalyzedReportUI(), "ANALYZED_REPORT");
+            showRightPage("ANALYZED_REPORT");
         });
 
         profileBtn.addActionListener(e -> {
-            new EditProfileUI(this.loggedInId);
+            rightContainer.add(new EditProfileUI(this.loggedInId), "EDIT_PROFILE");
+            showRightPage("EDIT_PROFILE");
         });
 
         logoutBtn.addActionListener(e -> {
             MainUI.instance.showPage("MAIN_MENU");
             MainUI.instance.mainContainer.remove(this); 
         });
+
+        return centerWrapper;
     }
 
-    // ================= GET NAME =================
     private String getManagerName(String id) {
         try {
             BufferedReader br = new BufferedReader(new FileReader("manager.txt"));
@@ -206,7 +216,6 @@ public class ManagerUI extends JPanel implements UserDashboard {
         return "Manager";
     }
 
-    // ================= BUTTON CREATOR =================
     private JButton createButton(String text, int y) {
         JButton btn = new ModernButton(text);
         btn.setBounds(70, y, 220, 35);

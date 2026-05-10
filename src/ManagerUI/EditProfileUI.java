@@ -1,7 +1,6 @@
 package ManagerUI;
 
 import javax.swing.*;
-import UI.MainUI;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
@@ -16,19 +15,16 @@ public class EditProfileUI extends JPanel {
     private JPasswordField passField;
 
     public EditProfileUI(String id) {
-        this.managerId = id; // 🔥 We keep the ID to know whose profile to edit!
-        
+        this.managerId = id; 
         buildUI();
-
-        // 🔥 SPA Routing
-        MainUI.instance.mainContainer.add(this, "EDIT_PROFILE");
-        MainUI.instance.showPage("EDIT_PROFILE");
     }
 
     private void buildUI() {
+        setOpaque(false); 
         setLayout(new BorderLayout());
 
-        JPanel bg = new GradientPanel();
+        JPanel bg = new JPanel();
+        bg.setOpaque(false);
         bg.setLayout(new GridBagLayout());
         add(bg, BorderLayout.CENTER);
 
@@ -78,8 +74,8 @@ public class EditProfileUI extends JPanel {
         saveBtn.addActionListener(e -> saveProfile());
         
         backBtn.addActionListener(e -> {
-            MainUI.instance.showPage("MANAGER_DASHBOARD");
-            MainUI.instance.mainContainer.remove(this); // Clean up memory
+            ManagerUI.instance.showRightPage("DASHBOARD");
+            ManagerUI.instance.rightContainer.remove(this); 
         });
     }
 
@@ -99,9 +95,7 @@ public class EditProfileUI extends JPanel {
                     break;
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void saveProfile() {
