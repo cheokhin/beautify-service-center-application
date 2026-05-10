@@ -68,27 +68,19 @@ public class ManageUserUI extends JPanel {
         card.add(scrollPane);
 
         // ================= BUTTONS =================
-        JButton addBtn = createButton("Add User", 40, 390, 110);
-        JButton editBtn = createButton("Edit User", 160, 390, 110);
-        JButton delBtn = createButton("Delete User", 280, 390, 130);
-        JButton backBtn = createButton("Return", 460, 390, 120);
+        JButton addBtn = createButton("Add User", 50, 390, 140);
+        JButton editBtn = createButton("Edit User", 240, 390, 140);
+        JButton delBtn = createButton("Delete User", 430, 390, 140);
 
         card.add(addBtn);
         card.add(editBtn);
         card.add(delBtn);
-        card.add(backBtn);
 
         // ================= ACTIONS =================
         roleSelect.addActionListener(e -> loadUsers());
         addBtn.addActionListener(e -> showAddUserDialog());
         editBtn.addActionListener(e -> showEditUserDialog());
         delBtn.addActionListener(e -> deleteUser());
-
-        backBtn.addActionListener(e -> {
-            // 🔥 Routes inside the ManagerUI right side!
-            ManagerUI.instance.showRightPage("DASHBOARD");
-            ManagerUI.instance.rightContainer.remove(this); 
-        });
 
         loadUsers(); 
     }

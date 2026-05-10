@@ -15,10 +15,9 @@ public class ManagerUI extends JPanel implements UserDashboard {
 
     private static final long serialVersionUID = 1L;
 
-    public static ManagerUI instance; // 🔥 Shared instance for right-side routing
+    public static ManagerUI instance; 
     private String loggedInId;
 
-    // 🔥 The new nested SPA container
     public CardLayout rightCardLayout;
     public JPanel rightContainer;
 
@@ -36,7 +35,6 @@ public class ManagerUI extends JPanel implements UserDashboard {
         this.loggedInId = id;
         buildUI(); 
         
-        // Adds the whole Manager interface (Sidebar + Right Container) to MainUI
         MainUI.instance.mainContainer.add(this, "MANAGER_DASHBOARD");
         MainUI.instance.showPage("MANAGER_DASHBOARD");
     }
@@ -44,17 +42,30 @@ public class ManagerUI extends JPanel implements UserDashboard {
     private void buildUI() {
         setLayout(new BorderLayout()); 
 
-        JPanel bg = new GradientPanel();
+        JPanel bg = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g;
+                GradientPaint gp = new GradientPaint(
+                        0, 0, new Color(20, 20, 40),
+                        getWidth(), getHeight(), new Color(0, 200, 255)
+                );
+                g2.setPaint(gp);
+                g2.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
         bg.setLayout(new BorderLayout());
         add(bg, BorderLayout.CENTER);
 
-        // ================= SIDEBAR (STAYS FIXED) =================
+        // ================= SIDEBAR =================
+        // 🔥 Increased width to 240 to fit buttons nicely
         JPanel sidebar = new RoundedPanel(25, new Color(35, 35, 50));
-        sidebar.setPreferredSize(new Dimension(200, 0));
+        sidebar.setPreferredSize(new Dimension(240, 0));
         sidebar.setLayout(null);
         bg.add(sidebar, BorderLayout.WEST);
 
-        // Avatar
+        // Avatar (Shifted up slightly)
         JPanel avatar = new JPanel() {
             private static final long serialVersionUID = 1L;
             protected void paintComponent(Graphics g) {
@@ -70,7 +81,7 @@ public class ManagerUI extends JPanel implements UserDashboard {
                 g2.fillRoundRect(24, 50, 42, 28, 20, 20);
             }
         };
-        avatar.setBounds(55, 30, 90, 90);
+        avatar.setBounds(75, 20, 90, 90); // Centered in 240 width
         avatar.setOpaque(false);
         sidebar.add(avatar);
 
@@ -78,35 +89,45 @@ public class ManagerUI extends JPanel implements UserDashboard {
         String managerName = getManagerName(this.loggedInId);
 
         JLabel nameLabel = new JLabel(managerName);
-        nameLabel.setBounds(30, 130, 140, 25);
+        nameLabel.setBounds(20, 120, 200, 25);
         nameLabel.setForeground(Color.WHITE);
         nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
         nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
         sidebar.add(nameLabel);
 
         JLabel idLabel = new JLabel(this.loggedInId);
-        idLabel.setBounds(30, 160, 140, 20);
+        idLabel.setBounds(20, 145, 200, 20);
         idLabel.setForeground(Color.LIGHT_GRAY);
         idLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         idLabel.setHorizontalAlignment(SwingConstants.CENTER);
         sidebar.add(idLabel);
 
         JLabel roleLabel = new JLabel("MANAGER");
-        roleLabel.setBounds(20, 195, 160, 25);
+        roleLabel.setBounds(20, 170, 200, 25);
         roleLabel.setForeground(new Color(0, 200, 255));
         roleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         roleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         sidebar.add(roleLabel);
 
-        JLabel welcomeLabel = new JLabel("System Control Active");
-        welcomeLabel.setBounds(20, 235, 160, 25);
-        welcomeLabel.setForeground(Color.WHITE);
-        welcomeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        sidebar.add(welcomeLabel);
+        // ================= SIDEBAR NAVIGATION BUTTONS =================
+        // 🔥 Buttons moved to the sidebar
+        JButton manageBtn = createSidebarButton(" Manage Users", 215);
+        JButton priceBtn = createSidebarButton(" Set Service Prices", 265);
+        JButton feedbackBtn = createSidebarButton(" View Feedbacks", 315);
+        JButton reportBtn = createSidebarButton(" Analyzed Reports", 365);
+        JButton profileBtn = createSidebarButton(" Edit Profile", 415);
+        JButton logoutBtn = createSidebarButton(" Log Out", 465);
 
+        sidebar.add(manageBtn);
+        sidebar.add(priceBtn);
+        sidebar.add(feedbackBtn);
+        sidebar.add(reportBtn);
+        sidebar.add(profileBtn);
+        sidebar.add(logoutBtn);
+
+        // Time Label (Moved to the bottom)
         JLabel timeLabel = new JLabel();
-        timeLabel.setBounds(20, 320, 160, 25);
+        timeLabel.setBounds(20, 520, 200, 25);
         timeLabel.setForeground(Color.WHITE);
         timeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -121,50 +142,14 @@ public class ManagerUI extends JPanel implements UserDashboard {
         // ================= RIGHT SIDE CONTAINER =================
         rightCardLayout = new CardLayout();
         rightContainer = new JPanel(rightCardLayout);
-        rightContainer.setOpaque(false); // Makes it transparent to show the background gradient
+        rightContainer.setOpaque(false); 
         bg.add(rightContainer, BorderLayout.CENTER);
 
-        // Load the 6 buttons into the right side by default
-        rightContainer.add(createDashboardMenu(), "DASHBOARD");
+        // 🔥 Default Welcome Screen
+        rightContainer.add(createWelcomeScreen(), "DASHBOARD");
         rightCardLayout.show(rightContainer, "DASHBOARD");
-    }
 
-    // ================= ROUTER FOR RIGHT SIDE =================
-    public void showRightPage(String pageName) {
-        rightCardLayout.show(rightContainer, pageName);
-    }
-
-    // ================= DASHBOARD MENU (6 BUTTONS) =================
-    private JPanel createDashboardMenu() {
-        JPanel centerWrapper = new JPanel(new GridBagLayout()); 
-        centerWrapper.setOpaque(false);
-
-        JPanel card = new RoundedPanel(25, new Color(35, 35, 50));
-        card.setPreferredSize(new Dimension(360, 350));
-        card.setLayout(null);
-        centerWrapper.add(card);
-
-        JLabel title = new JLabel(" MANAGER DASHBOARD", SwingConstants.CENTER);
-        title.setBounds(50, 20, 260, 30);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        title.setForeground(Color.WHITE);
-        card.add(title);
-
-        JButton manageBtn = createButton(" Manage Users", 70);
-        JButton priceBtn = createButton(" Set Service Prices", 115);
-        JButton feedbackBtn = createButton(" View Feedbacks", 160);
-        JButton reportBtn = createButton(" Analyzed Reports", 205);
-        JButton profileBtn = createButton(" Edit Profile", 250);
-        JButton logoutBtn = createButton(" Log Out", 295);
-
-        card.add(manageBtn);
-        card.add(priceBtn);
-        card.add(feedbackBtn);
-        card.add(reportBtn);
-        card.add(profileBtn);
-        card.add(logoutBtn);
-
-        // 🔥 ACTIONS: These now inject the sub-pages directly into the rightContainer!
+        // ================= ACTIONS =================
         priceBtn.addActionListener(e -> {
             rightContainer.add(new SetPriceUI(), "SET_PRICE");
             showRightPage("SET_PRICE");
@@ -194,8 +179,40 @@ public class ManagerUI extends JPanel implements UserDashboard {
             MainUI.instance.showPage("MAIN_MENU");
             MainUI.instance.mainContainer.remove(this); 
         });
+    }
 
-        return centerWrapper;
+    public void showRightPage(String pageName) {
+        rightCardLayout.show(rightContainer, pageName);
+    }
+
+    // 🔥 Helper for formatting the sidebar buttons
+    private JButton createSidebarButton(String text, int y) {
+        JButton btn = new ModernButton(text);
+        btn.setBounds(20, y, 200, 40);
+        return btn;
+    }
+
+    // 🔥 Beautiful welcome screen when nothing is selected
+    private JPanel createWelcomeScreen() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setOpaque(false);
+        
+        JPanel card = new RoundedPanel(25, new Color(35, 35, 50));
+        card.setPreferredSize(new Dimension(400, 200));
+        card.setLayout(new GridLayout(2, 1));
+
+        JLabel title = new JLabel("Welcome to Manager Dashboard", SwingConstants.CENTER);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        title.setForeground(Color.WHITE);
+        card.add(title);
+
+        JLabel subtitle = new JLabel("Select an option from the sidebar to begin.", SwingConstants.CENTER);
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitle.setForeground(new Color(0, 200, 255));
+        card.add(subtitle);
+
+        panel.add(card);
+        return panel;
     }
 
     private String getManagerName(String id) {
@@ -214,11 +231,5 @@ public class ManagerUI extends JPanel implements UserDashboard {
             e.printStackTrace();
         }
         return "Manager";
-    }
-
-    private JButton createButton(String text, int y) {
-        JButton btn = new ModernButton(text);
-        btn.setBounds(70, y, 220, 35);
-        return btn;
     }
 }

@@ -50,19 +50,9 @@ public class ViewFeedbackUI extends JPanel {
         scrollPane.getVerticalScrollBar().setBackground(new Color(35, 35, 50));
         card.add(scrollPane);
 
-        // ================= BUTTONS =================
-        JButton backBtn = new ModernButton("Return");
-        backBtn.setBounds(240, 395, 120, 35);
-        card.add(backBtn);
-
         // ================= ACTIONS =================
         loadTechnicianFeedback(textArea);
         loadCustomerComments(textArea);
-
-        backBtn.addActionListener(e -> {
-            ManagerUI.instance.showRightPage("DASHBOARD");
-            ManagerUI.instance.rightContainer.remove(this); 
-        });
     }
 
     // ==========================================

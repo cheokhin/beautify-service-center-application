@@ -51,18 +51,9 @@ public class AnalyzedReportUI extends JPanel {
         scrollPane.getVerticalScrollBar().setBackground(new Color(35, 35, 50));
         card.add(scrollPane);
 
-        // ================= BUTTONS =================
-        JButton backBtn = new ModernButton("Return");
-        backBtn.setBounds(265, 460, 120, 35);
-        card.add(backBtn);
-
         // ================= ACTIONS =================
         reportArea.setText(generateReport());
-
-        backBtn.addActionListener(e -> {
-            ManagerUI.instance.showRightPage("DASHBOARD");
-            ManagerUI.instance.rightContainer.remove(this); 
-        });
+        reportArea.setCaretPosition(0);
     }
 
     // ==========================================

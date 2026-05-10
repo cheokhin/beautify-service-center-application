@@ -62,23 +62,13 @@ public class SetPriceUI extends JPanel {
 
         // ================= BUTTONS =================
         JButton saveBtn = new ModernButton("Save Prices");
-        saveBtn.setBounds(50, 210, 120, 35);
+        saveBtn.setBounds(100, 210, 160, 35); // 🔥 Centered in the 360px wide card
         card.add(saveBtn);
-
-        JButton backBtn = new ModernButton("Return");
-        backBtn.setBounds(190, 210, 120, 35);
-        card.add(backBtn);
 
         // ================= ACTIONS =================
         loadPrices(); 
 
         saveBtn.addActionListener(e -> savePrices());
-        
-        backBtn.addActionListener(e -> {
-            // 🔥 Routes inside the ManagerUI right side!
-            ManagerUI.instance.showRightPage("DASHBOARD");
-            ManagerUI.instance.rightContainer.remove(this); 
-        });
     }
 
     // ================= LOGIC =================

@@ -61,22 +61,13 @@ public class EditProfileUI extends JPanel {
 
         // ================= BUTTONS =================
         JButton saveBtn = new ModernButton("Save Changes");
-        saveBtn.setBounds(40, 330, 140, 35);
+        saveBtn.setBounds(110, 330, 160, 35); // 🔥 Centered in the 380px wide card
         card.add(saveBtn);
-
-        JButton backBtn = new ModernButton("Return");
-        backBtn.setBounds(200, 330, 140, 35);
-        card.add(backBtn);
 
         // ================= ACTIONS =================
         loadProfileData();
 
         saveBtn.addActionListener(e -> saveProfile());
-        
-        backBtn.addActionListener(e -> {
-            ManagerUI.instance.showRightPage("DASHBOARD");
-            ManagerUI.instance.rightContainer.remove(this); 
-        });
     }
 
     // ================= LOGIC =================
