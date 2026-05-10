@@ -1,0 +1,4 @@
+A001,C001,2222-22-22,Normal,Paid,Pending,Fix,1,T001
+A002,C001,2222-22-22,Normal,Paid,Pending,Fix,1,T001
+A003,C001,2222-22-22,Normal,Paid,Pending,Fix,1,T001
+A004,C001,2222-22-22,Normal,Paid,Pending,Fix,1,NA

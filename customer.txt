@@ -1,0 +1,2 @@
+C001,B,B,123,B@gmail.com,012-345-6790,Toyota,1234,1234,Walk-in
+C002,D,D,123,D@gmail.com,01234567,Myvi,2343,2343,Booking

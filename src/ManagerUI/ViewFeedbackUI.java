@@ -1,0 +1,202 @@
+package ManagerUI;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import UI.MainUI;
+import java.awt.*;
+import java.io.*;
+
+import UI.Components.*;
+
+public class ViewFeedbackUI extends JPanel {
+
+    private static final long serialVersionUID = 1L;
+
+    public ViewFeedbackUI() {
+        buildUI();
+
+        // 🔥 SPA Routing
+        MainUI.instance.mainContainer.add(this, "VIEW_FEEDBACK");
+        MainUI.instance.showPage("VIEW_FEEDBACK");
+    }
+
+    private void buildUI() {
+        setLayout(new BorderLayout());
+
+        JPanel bg = new GradientPanel();
+        bg.setLayout(new GridBagLayout());
+        add(bg, BorderLayout.CENTER);
+
+        JPanel card = new RoundedPanel(25, new Color(35, 35, 50));
+        card.setPreferredSize(new Dimension(600, 460));
+        card.setLayout(null);
+        bg.add(card);
+
+        // ================= TITLE =================
+        JLabel title = new JLabel("ALL FEEDBACKS & COMMENTS", SwingConstants.CENTER);
+        title.setBounds(150, 20, 300, 30);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        title.setForeground(Color.WHITE);
+        card.add(title);
+
+        // ================= TEXT AREA =================
+        JTextArea textArea = new JTextArea();
+        textArea.setEditable(false);
+        textArea.setBackground(new Color(20, 20, 30));
+        textArea.setForeground(new Color(220, 230, 255)); // Light blue-white for readability
+        textArea.setFont(new Font("Consolas", Font.PLAIN, 13));
+        textArea.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setBounds(30, 65, 540, 310);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 80), 2));
+        scrollPane.getVerticalScrollBar().setBackground(new Color(35, 35, 50));
+        card.add(scrollPane);
+
+        // ================= BUTTONS =================
+        JButton backBtn = new ModernButton("Return");
+        backBtn.setBounds(240, 395, 120, 35);
+        card.add(backBtn);
+
+        // ================= ACTIONS =================
+        loadTechnicianFeedback(textArea);
+        loadCustomerComments(textArea);
+
+        backBtn.addActionListener(e -> {
+            MainUI.instance.showPage("MANAGER_DASHBOARD");
+            MainUI.instance.mainContainer.remove(this); // Clean up memory
+        });
+    }
+
+    // ==========================================
+    // 🔥 DATA LOGIC (Unchanged functionally)
+    // ==========================================
+
+    private void loadTechnicianFeedback(JTextArea textArea) {
+        File file = new File("feedback.txt");
+        textArea.append("=== Technician Feedback ===\n\n");
+
+        if (!file.exists()) {
+            textArea.append("No technician feedback available.\n\n");
+            return;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+
+                String[] data = line.split(",");
+                if (data.length < 3) continue;
+
+                String appID = data[0];
+                String techID = data[1];
+                String feedback = data[2];
+                String date = (data.length >= 4) ? data[3] : "-";
+
+                textArea.append(
+                        "Appointment : " + appID +
+                        "\nTechnician  : " + techID +
+                        "\nFeedback    : " + feedback +
+                        "\nDate        : " + date +
+                        "\n-----------------------------\n"
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadCustomerComments(JTextArea textArea) {
+        File file = new File("comment.txt");
+        textArea.append("\n=== Technician Comments ===\n\n");
+
+        if (!file.exists()) {
+            textArea.append("No customer comments available.\n");
+            return;
+        }
+
+        try {
+            // ===== Technician Comments =====
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+
+                String[] data = line.split(",");
+                if (data.length < 4) continue;
+
+                String appID = data[0];
+                String customerID = data[1];
+                String role = data[2];
+                String comment = data[3];
+                String rating = (data.length >= 5) ? data[4] : "-";
+                String date = (data.length >= 6) ? data[5] : "-";
+
+                if (role.equalsIgnoreCase("Technician")) {
+                    String techID = getTechnicianFromAppointment(appID);
+                    textArea.append(
+                            "Appointment : " + appID +
+                            "\nCustomer    : " + customerID +
+                            "\nTo          : Technician (" + techID + ")" +
+                            "\nComment     : " + comment +
+                            "\nRating      : " + rating +
+                            "\nDate        : " + date +
+                            "\n-----------------------------\n"
+                    );
+                }
+            }
+            br.close();
+
+            // ===== Counter Staff Comments =====
+            textArea.append("\n=== Counter Staff Comments ===\n\n");
+            BufferedReader br2 = new BufferedReader(new FileReader(file));
+
+            while ((line = br2.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+
+                String[] data = line.split(",");
+                if (data.length < 4) continue;
+
+                String appID = data[0];
+                String customerID = data[1];
+                String role = data[2];
+                String comment = data[3];
+                String rating = (data.length >= 5) ? data[4] : "-";
+                String date = (data.length >= 6) ? data[5] : "-";
+
+                if (role.equalsIgnoreCase("CounterStaff")) {
+                    textArea.append(
+                            "Appointment : " + appID +
+                            "\nCustomer    : " + customerID +
+                            "\nTo          : Counter Staff" +
+                            "\nComment     : " + comment +
+                            "\nRating      : " + rating +
+                            "\nDate        : " + date +
+                            "\n-----------------------------\n"
+                    );
+                }
+            }
+            br2.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getTechnicianFromAppointment(String appID) {
+        try (BufferedReader br = new BufferedReader(new FileReader("appointment.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split(",");
+                if (d.length >= 9 && d[0].trim().equals(appID)) {
+                    return d[8].trim();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "-";
+    }
+}
