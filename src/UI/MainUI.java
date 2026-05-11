@@ -41,6 +41,8 @@ public class MainUI extends JFrame {
 
         cardLayout.show(mainContainer, "MAIN_MENU");
 
+        setupWindowResizing();
+
         setVisible(true);
     }
 
@@ -60,6 +62,9 @@ public class MainUI extends JFrame {
 
         JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         controls.setOpaque(false);
+
+        // Added a 5px margin to the top and right so the buttons don't touch the exact edge
+        controls.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 5));
 
         JButton minimizeBtn = createControlButton(" – ", new Color(60, 60, 80));
         JButton maximizeBtn = createControlButton(" ▢ ", new Color(60, 60, 80));
@@ -86,6 +91,8 @@ public class MainUI extends JFrame {
         });
         titleBar.addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
+                if (getCursor().getType() != Cursor.DEFAULT_CURSOR) return;
+
                 Point currCoords = e.getLocationOnScreen();
                 setLocation(currCoords.x - dragPoint[0].x, currCoords.y - dragPoint[0].y);
             }
@@ -208,6 +215,79 @@ public class MainUI extends JFrame {
         bg.add(card, gbc);
 
         return bg;
+    }
+
+    private void setupWindowResizing() {
+        Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+            private int cursor = Cursor.DEFAULT_CURSOR;
+            private Point startPos = null;
+            private Rectangle startBounds = null;
+            private final int BORDER = 6; // Thickness of the invisible resizing border
+
+            @Override
+            public void eventDispatched(AWTEvent event) {
+                if (!(event instanceof MouseEvent)) return;
+                MouseEvent me = (MouseEvent) event;
+                
+                // Only process events for our MainUI frame
+                Window win = SwingUtilities.getWindowAncestor(me.getComponent());
+                if (win != MainUI.this) return;
+
+                // Disable resizing if window is maximized
+                if (getExtendedState() == JFrame.MAXIMIZED_BOTH) {
+                    if (getCursor().getType() != Cursor.DEFAULT_CURSOR) setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    return; 
+                }
+
+                Point p = SwingUtilities.convertPoint(me.getComponent(), me.getPoint(), MainUI.this);
+
+                if (me.getID() == MouseEvent.MOUSE_MOVED) {
+                    int w = getWidth();
+                    int h = getHeight();
+                    cursor = Cursor.DEFAULT_CURSOR;
+
+                    // Check corners and edges
+                    if (p.x < BORDER && p.y < BORDER) cursor = Cursor.NW_RESIZE_CURSOR;
+                    else if (p.x > w - BORDER && p.y < BORDER) cursor = Cursor.NE_RESIZE_CURSOR;
+                    else if (p.x < BORDER && p.y > h - BORDER) cursor = Cursor.SW_RESIZE_CURSOR;
+                    else if (p.x > w - BORDER && p.y > h - BORDER) cursor = Cursor.SE_RESIZE_CURSOR;
+                    else if (p.x < BORDER) cursor = Cursor.W_RESIZE_CURSOR;
+                    else if (p.x > w - BORDER) cursor = Cursor.E_RESIZE_CURSOR;
+                    else if (p.y < BORDER) cursor = Cursor.N_RESIZE_CURSOR;
+                    else if (p.y > h - BORDER) cursor = Cursor.S_RESIZE_CURSOR;
+
+                    if (getCursor().getType() != cursor) setCursor(Cursor.getPredefinedCursor(cursor));
+                } 
+                else if (me.getID() == MouseEvent.MOUSE_PRESSED) {
+                    if (cursor != Cursor.DEFAULT_CURSOR) {
+                        startPos = me.getLocationOnScreen();
+                        startBounds = getBounds();
+                        me.consume(); // Prevents clicking the X button underneath the resize zone
+                    }
+                }
+                else if (me.getID() == MouseEvent.MOUSE_DRAGGED && cursor != Cursor.DEFAULT_CURSOR && startBounds != null) {
+                    Point currentPos = me.getLocationOnScreen();
+                    int dx = currentPos.x - startPos.x;
+                    int dy = currentPos.y - startPos.y;
+                    
+                    Rectangle bounds = new Rectangle(startBounds);
+
+
+                    if (cursor == Cursor.E_RESIZE_CURSOR || cursor == Cursor.NE_RESIZE_CURSOR || cursor == Cursor.SE_RESIZE_CURSOR) {
+                        bounds.width = Math.max(800, startBounds.width + dx);
+                    }
+                    if (cursor == Cursor.W_RESIZE_CURSOR || cursor == Cursor.NW_RESIZE_CURSOR || cursor == Cursor.SW_RESIZE_CURSOR) { bounds.x += dx; bounds.width -= dx; }
+                    if (cursor == Cursor.S_RESIZE_CURSOR || cursor == Cursor.SW_RESIZE_CURSOR || cursor == Cursor.SE_RESIZE_CURSOR) bounds.height += dy;
+                    if (cursor == Cursor.N_RESIZE_CURSOR || cursor == Cursor.NW_RESIZE_CURSOR || cursor == Cursor.NE_RESIZE_CURSOR) { bounds.y += dy; bounds.height -= dy; }
+
+                    // Prevent window from being sized too small
+                    if (bounds.width >= 800 && bounds.height >= 550) {
+                        setBounds(bounds);
+                        validate();
+                    }
+                }
+            }
+        }, AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
     }
 
     public void checkManager() {

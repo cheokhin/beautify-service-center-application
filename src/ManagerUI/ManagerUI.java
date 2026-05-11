@@ -2,6 +2,7 @@ package ManagerUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.text.SimpleDateFormat;
@@ -58,14 +59,26 @@ public class ManagerUI extends JPanel implements UserDashboard {
         bg.setLayout(new BorderLayout());
         add(bg, BorderLayout.CENTER);
 
-        // ================= SIDEBAR =================
-        // 🔥 Increased width to 240 to fit buttons nicely
-        JPanel sidebar = new RoundedPanel(25, new Color(35, 35, 50));
-        sidebar.setPreferredSize(new Dimension(240, 0));
+        // ================= SIDEBAR (Now a sharp rectangle) =================
+        JPanel sidebar = new JPanel();
+        sidebar.setBackground(new Color(35, 35, 50));
         sidebar.setLayout(null);
-        bg.add(sidebar, BorderLayout.WEST);
+        // 🔥 Set a fixed preferred size so the scrollpane knows when to activate
+        sidebar.setPreferredSize(new Dimension(240, 580)); 
 
-        // Avatar (Shifted up slightly)
+        // ================= SIDEBAR SCROLL PANE =================
+        JScrollPane sidebarScroll = new JScrollPane(sidebar);
+        sidebarScroll.setPreferredSize(new Dimension(240, 0));
+        sidebarScroll.setBorder(BorderFactory.createEmptyBorder()); // Removes ugly white border
+        sidebarScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        sidebarScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        sidebarScroll.getVerticalScrollBar().setUnitIncrement(16); // Smooth scrolling speed
+        sidebarScroll.getVerticalScrollBar().setBackground(new Color(35, 35, 50)); 
+        sidebarScroll.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0)); // Thin sleek scrollbar
+        
+        bg.add(sidebarScroll, BorderLayout.WEST);
+
+        // ================= AVATAR =================
         JPanel avatar = new JPanel() {
             private static final long serialVersionUID = 1L;
             protected void paintComponent(Graphics g) {
@@ -81,11 +94,19 @@ public class ManagerUI extends JPanel implements UserDashboard {
                 g2.fillRoundRect(24, 50, 42, 28, 20, 20);
             }
         };
-        avatar.setBounds(75, 20, 90, 90); // Centered in 240 width
+        avatar.setBounds(75, 20, 90, 90); 
         avatar.setOpaque(false);
+        
+        avatar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        avatar.setToolTipText("Return to Dashboard");
+        avatar.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                showRightPage("DASHBOARD");
+            }
+        });
         sidebar.add(avatar);
 
-        // Labels
+        // ================= LABELS =================
         String managerName = getManagerName(this.loggedInId);
 
         JLabel nameLabel = new JLabel(managerName);
@@ -109,8 +130,7 @@ public class ManagerUI extends JPanel implements UserDashboard {
         roleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         sidebar.add(roleLabel);
 
-        // ================= SIDEBAR NAVIGATION BUTTONS =================
-        // 🔥 Buttons moved to the sidebar
+        // ================= NAVIGATION BUTTONS =================
         JButton manageBtn = createSidebarButton(" Manage Users", 215);
         JButton priceBtn = createSidebarButton(" Set Service Prices", 265);
         JButton feedbackBtn = createSidebarButton(" View Feedbacks", 315);
@@ -125,9 +145,8 @@ public class ManagerUI extends JPanel implements UserDashboard {
         sidebar.add(profileBtn);
         sidebar.add(logoutBtn);
 
-        // Time Label (Moved to the bottom)
         JLabel timeLabel = new JLabel();
-        timeLabel.setBounds(20, 520, 200, 25);
+        timeLabel.setBounds(20, 530, 200, 25);
         timeLabel.setForeground(Color.WHITE);
         timeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -145,7 +164,6 @@ public class ManagerUI extends JPanel implements UserDashboard {
         rightContainer.setOpaque(false); 
         bg.add(rightContainer, BorderLayout.CENTER);
 
-        // 🔥 Default Welcome Screen
         rightContainer.add(createWelcomeScreen(), "DASHBOARD");
         rightCardLayout.show(rightContainer, "DASHBOARD");
 
@@ -185,14 +203,12 @@ public class ManagerUI extends JPanel implements UserDashboard {
         rightCardLayout.show(rightContainer, pageName);
     }
 
-    // 🔥 Helper for formatting the sidebar buttons
     private JButton createSidebarButton(String text, int y) {
         JButton btn = new ModernButton(text);
         btn.setBounds(20, y, 200, 40);
         return btn;
     }
 
-    // 🔥 Beautiful welcome screen when nothing is selected
     private JPanel createWelcomeScreen() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false);
@@ -227,9 +243,7 @@ public class ManagerUI extends JPanel implements UserDashboard {
                 }
             }
             br.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) {}
         return "Manager";
     }
 }
