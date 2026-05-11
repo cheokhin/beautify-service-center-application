@@ -72,7 +72,7 @@ public class CustomerEditProfileUI extends JPanel {
         typeBox.setEnabled(false); // Type is usually fixed
         card.add(typeBox); y += 60;
 
-        // 🔥 Centered Button
+        // Centered Button
         JButton updateBtn = new ModernButton(" Update Profile");
         updateBtn.setBounds(250, y, 150, 40);
         card.add(updateBtn);

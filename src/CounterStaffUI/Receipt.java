@@ -80,8 +80,7 @@ public class Receipt extends JPanel {
 
         generateBtn.addActionListener(e -> generateReceipt());
         viewBtn.addActionListener(e -> viewReceipts());
-        
-        // 🔥 SPA Back Router
+
         backBtn.addActionListener(e -> {
             CounterStaffMenu.instance.rightContainer.add(new PaymentMenu(counterID), "PAYMENT");
             CounterStaffMenu.instance.showRightPage("PAYMENT");

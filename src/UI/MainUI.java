@@ -33,9 +33,6 @@ public class MainUI extends JFrame {
         mainContainer = new JPanel(cardLayout);
         add(mainContainer, BorderLayout.CENTER);
 
-        JPanel mainMenuPanel = createMainMenuPanel();
-        mainContainer.add(mainMenuPanel, "MAIN_MENU");
-
         LogInUI loginPanel = new LogInUI();
         mainContainer.add(loginPanel, "LOGIN");
 
@@ -121,100 +118,6 @@ public class MainUI extends JFrame {
         });
 
         return btn;
-    }
-
-    private JPanel createMainMenuPanel() {
-        JPanel bg = new GradientPanel();
-        bg.setLayout(new GridBagLayout()); 
-
-        JPanel topCard = new RoundedPanel(25, new Color(35, 35, 50));
-        topCard.setPreferredSize(new Dimension(320, 100));
-        topCard.setMaximumSize(new Dimension(320, 100));
-        topCard.setLayout(null);
-
-        Icon baseIcon = UIManager.getIcon("FileView.computerIcon");
-        Image img = ((ImageIcon) baseIcon).getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
-        JLabel logoLabel = new JLabel(new ImageIcon(img));
-        logoLabel.setBounds(20, 25, 50, 50);
-
-        logoLabel.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                Image bigger = ((ImageIcon) baseIcon).getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
-                logoLabel.setIcon(new ImageIcon(bigger));
-                logoLabel.setBounds(15, 20, 60, 60);
-            }
-            public void mouseExited(MouseEvent e) {
-                Image normal = ((ImageIcon) baseIcon).getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
-                logoLabel.setIcon(new ImageIcon(normal));
-                logoLabel.setBounds(20, 25, 50, 50);
-            }
-        });
-
-        topCard.add(logoLabel);
-
-        JLabel shopName = new JLabel("APU AUTO SERVICE");
-        shopName.setBounds(90, 20, 220, 25);
-        shopName.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        shopName.setForeground(Color.WHITE);
-        topCard.add(shopName);
-
-        JLabel slogan = new JLabel("Quality Service You Can Trust");
-        slogan.setBounds(90, 45, 220, 20);
-        slogan.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        slogan.setForeground(new Color(0, 200, 255)); 
-        topCard.add(slogan);
-
-        JPanel card = new RoundedPanel(25, new Color(35, 35, 50));
-        card.setPreferredSize(new Dimension(320, 250));
-        card.setMaximumSize(new Dimension(320, 250));
-        card.setLayout(null);
-
-        JLabel title = new JLabel(" MAIN MENU", SwingConstants.CENTER);
-        title.setBounds(50, 20, 220, 30);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        title.setForeground(Color.WHITE);
-
-        Icon titleIcon = resizeIcon(UIManager.getIcon("OptionPane.informationIcon"), 20, 20);
-        title.setIcon(titleIcon);
-        title.setIconTextGap(10);
-        card.add(title);
-
-        Icon loginIcon = resizeIcon(UIManager.getIcon("FileView.directoryIcon"), 18, 18);
-        Icon signInIcon = resizeIcon(UIManager.getIcon("FileView.fileIcon"), 18, 18);
-        Icon exitIcon = resizeIcon(UIManager.getIcon("OptionPane.errorIcon"), 18, 18);
-
-        JButton loginBtn = new ModernButton(" Log In", loginIcon);
-        loginBtn.setBounds(50, 70, 220, 40);
-        
-        JButton signInBtn = new ModernButton(" Sign In", signInIcon);
-        signInBtn.setBounds(50, 120, 220, 40);
-        
-        JButton exitBtn = new ModernButton(" Exit", exitIcon);
-        exitBtn.setBounds(50, 170, 220, 40);
-
-        card.add(loginBtn);
-        card.add(signInBtn);
-        card.add(exitBtn);
-
-        loginBtn.addActionListener(e -> {
-            MainUI.instance.showPage("LOGIN");
-        });
-
-        signInBtn.addActionListener(e -> checkManager());
-        exitBtn.addActionListener(e -> System.exit(0));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(10, 0, 10, 0);
-        gbc.anchor = GridBagConstraints.CENTER;
-
-        bg.add(topCard, gbc);
-
-        gbc.gridy = 1;
-        bg.add(card, gbc);
-
-        return bg;
     }
 
     private void setupWindowResizing() {
@@ -312,11 +215,6 @@ public class MainUI extends JFrame {
         } else {
             new ModernDialog("Manager Account already Exists!");
         }
-    }
-
-    private Icon resizeIcon(Icon icon, int w, int h) {
-        Image img = ((ImageIcon) icon).getImage();
-        return new ImageIcon(img.getScaledInstance(w, h, Image.SCALE_SMOOTH));
     }
 
     public static void main(String[] args) {

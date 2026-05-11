@@ -38,7 +38,7 @@ public class TechnicianJobUI extends JPanel {
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         table.setForeground(Color.BLACK);
         
-        // 🔥 Matches the Technician Yellow Theme
+        // Matches the Technician Yellow Theme
         table.setSelectionBackground(new Color(255, 180, 0));
         table.setSelectionForeground(Color.BLACK);
 

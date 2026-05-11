@@ -51,7 +51,7 @@ public class UpdateJobStatusUI extends JPanel {
         statusBox.setBackground(Color.WHITE);
         card.add(statusBox);
 
-        // 🔥 Centered Button
+        // Centered Button
         JButton updateBtn = new ModernButton(" Update");
         updateBtn.setBounds(145, 190, 130, 38);
         card.add(updateBtn);

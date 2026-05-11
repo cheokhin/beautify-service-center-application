@@ -13,15 +13,14 @@ public class SetPriceUI extends JPanel {
 
     public SetPriceUI() {
         buildUI();
-        // 🔥 ALL SIZING AND ROUTING LOGIC REMOVED! ManagerUI handles it now.
     }
 
     private void buildUI() {
-        setOpaque(false); // 🔥 Makes this whole panel transparent
+        setOpaque(false); // Makes this whole panel transparent
         setLayout(new BorderLayout());
 
         JPanel bg = new JPanel();
-        bg.setOpaque(false); // 🔥 Replaced GradientPanel with a transparent JPanel
+        bg.setOpaque(false);
         bg.setLayout(new GridBagLayout());
         add(bg, BorderLayout.CENTER);
 
@@ -62,7 +61,7 @@ public class SetPriceUI extends JPanel {
 
         // ================= BUTTONS =================
         JButton saveBtn = new ModernButton("Save Prices");
-        saveBtn.setBounds(100, 210, 160, 35); // 🔥 Centered in the 360px wide card
+        saveBtn.setBounds(100, 210, 160, 35); // Centered in the 360px wide card
         card.add(saveBtn);
 
         // ================= ACTIONS =================

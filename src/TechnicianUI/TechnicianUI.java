@@ -182,7 +182,7 @@ public class TechnicianUI extends JPanel implements UserDashboard {
         });
 
         logoutBtn.addActionListener(e -> {
-            MainUI.instance.showPage("MAIN_MENU");
+            MainUI.instance.showPage("LOGIN");
             MainUI.instance.mainContainer.remove(this); 
         });
     }
@@ -203,10 +203,7 @@ public class TechnicianUI extends JPanel implements UserDashboard {
         
         JPanel card = new RoundedPanel(25, new Color(35, 35, 50));
         card.setPreferredSize(new Dimension(400, 200));
-        
         card.setLayout(new GridLayout(2, 1));
-        
-        // 🔥 Using your exact 45, 0, 45, 0 margin constraints!
         card.setBorder(BorderFactory.createEmptyBorder(45, 0, 45, 0));
 
         JLabel title = new JLabel("Technician Dashboard", SwingConstants.CENTER);

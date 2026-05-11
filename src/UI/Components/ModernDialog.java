@@ -24,7 +24,7 @@ public class ModernDialog extends JDialog {
         setSize(240, 100); // Starts slightly smaller for the "pop-out" scaling effect
         setLocationRelativeTo(getParent());
 
-        // 🔥 Safely check if the user's OS supports fading windows
+        // Safely check if the user's OS supports fading windows
         boolean canFade = GraphicsEnvironment
                 .getLocalGraphicsEnvironment()
                 .getDefaultScreenDevice()

@@ -56,7 +56,7 @@ public class ProvideFeedbackUI extends JPanel {
         scroll.setBounds(160, 130, 200, 100);
         card.add(scroll);
 
-        // 🔥 Centered Button
+        // Centered Button
         JButton saveBtn = new ModernButton(" Save");
         saveBtn.setBounds(145, 250, 130, 42);
         card.add(saveBtn);

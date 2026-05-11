@@ -5,11 +5,11 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 
-import UI.Components.*;
 import CustomerUI.CustomerUI;
 import ManagerUI.ManagerUI;
 import CounterStaffUI.CounterStaffMenu;
 import TechnicianUI.TechnicianUI;
+import UI.Components.*; 
 
 public class LogInUI extends JPanel {
 
@@ -22,74 +22,137 @@ public class LogInUI extends JPanel {
         setLayout(new BorderLayout());
 
         JPanel bg = new GradientPanel();
-        bg.setLayout(new GridBagLayout());
+        bg.setLayout(new GridBagLayout()); 
         add(bg, BorderLayout.CENTER);
 
-        JPanel card = new RoundedPanel(25, new Color(35, 35, 50));
-        card.setPreferredSize(new Dimension(320, 280));
-        card.setLayout(null);
+        // ================= TOP HEADER CARD =================
+        JPanel topCard = new RoundedPanel(25, new Color(35, 35, 50));
+        topCard.setPreferredSize(new Dimension(380, 100));
+        topCard.setLayout(null);
 
-        bg.add(card);
+        try {
+            // Load the raw, high-resolution original image
+            Image originalLogo = new ImageIcon("logo.png").getImage();
+            
+            // Create a custom panel to paint it crisply at render-time (Retina-ready!)
+            JPanel logoPanel = new JPanel() {
+                private static final long serialVersionUID = 1L;
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    Graphics2D g2 = (Graphics2D) g;
+                    
+                    // Turn on maximum quality rendering
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                    g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    
+                    // Compress the massive image into this tiny 50x50 box dynamically
+                    g2.drawImage(originalLogo, 0, 0, getWidth(), getHeight(), this);
+                }
+            };
+            
+            logoPanel.setBounds(40, 25, 50, 50);
+            logoPanel.setOpaque(false); // Make sure the background is transparent
+            topCard.add(logoPanel);
+            
+        } catch (Exception e) {
+            System.out.println("Logo not found. Make sure logo.png is in the root Beautify folder.");
+        }
 
-        JLabel title = new JLabel(" LOGIN", SwingConstants.CENTER);
-        title.setBounds(50, 20, 220, 30);
+        JLabel title = new JLabel("APU AUTO SERVICE");
+        title.setBounds(110, 20, 220, 25);
         title.setFont(new Font("Segoe UI", Font.BOLD, 18));
         title.setForeground(Color.WHITE);
-        card.add(title);
+        topCard.add(title);
 
-        addLabel(card, "ID:", 70);
-        idField = addTextField(card, 70);
+        JLabel slogan = new JLabel("Quality Service You Can Trust");
+        slogan.setBounds(110, 45, 220, 20);
+        slogan.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        slogan.setForeground(new Color(0, 200, 255));
+        topCard.add(slogan);
 
-        addLabel(card, "Username:", 110);
-        userField = addTextField(card, 110);
+        // ================= BOTTOM LOGIN CARD =================
+        JPanel loginCard = new RoundedPanel(25, new Color(35, 35, 50));
+        loginCard.setPreferredSize(new Dimension(380, 290)); 
+        loginCard.setLayout(null);
 
-        addLabel(card, "Password:", 150);
+        addLabel(loginCard, "ID:", 35);
+        idField = addTextField(loginCard, 35);
+
+        addLabel(loginCard, "Username:", 80);
+        userField = addTextField(loginCard, 80);
+
+        addLabel(loginCard, "Password:", 125);
 
         passField = new JPasswordField();
-        passField.setBounds(140, 150, 120, 30);
+        passField.setBounds(130, 125, 140, 30);
         styleField(passField);
-        card.add(passField);
+        passField.setEchoChar('•');
+        loginCard.add(passField);
 
-        // 👁 Show/Hide Button
-        JButton eyeBtn = new JButton("...");
-        eyeBtn.setBounds(260, 150, 30, 30);
+        JButton eyeBtn = new JButton("Show");
+        eyeBtn.setBounds(280, 125, 60, 30);
         eyeBtn.setFocusPainted(false);
+        eyeBtn.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        eyeBtn.setBackground(new Color(60, 60, 80));
+        eyeBtn.setForeground(Color.WHITE);
+        eyeBtn.setMargin(new Insets(0, 0, 0, 0));
+        
         eyeBtn.addActionListener(e -> {
-            if (passField.getEchoChar() == 0) {
+            if (passField.getEchoChar() == (char) 0) {
                 passField.setEchoChar('•');
+                eyeBtn.setText("Show");
             } else {
                 passField.setEchoChar((char) 0);
+                eyeBtn.setText("Hide");
             }
         });
-        card.add(eyeBtn);
+        loginCard.add(eyeBtn);
 
-        JButton loginBtn = createButton(" Login", 190);
-        JButton backBtn = createButton(" Back", 230);
+        JButton loginBtn = new ModernButton(" Login");
+        loginBtn.setBounds(40, 185, 140, 40);
+        
+        JButton exitBtn = new ModernButton(" Exit");
+        exitBtn.setBounds(200, 185, 140, 40);
 
-        card.add(loginBtn);
-        card.add(backBtn);
+        loginCard.add(loginBtn);
+        loginCard.add(exitBtn);
 
-        // 🔥 ACTIONS
-        loginBtn.addActionListener(e -> login());
-
-        backBtn.addActionListener(e -> {
-            idField.setText("");
-            userField.setText("");
-            passField.setText("");
-            MainUI.instance.showPage("MAIN_MENU");
+        JLabel registerLbl = new JLabel("<html><u>Register for an account</u></html>", SwingConstants.CENTER);
+        registerLbl.setBounds(115, 245, 150, 25);
+        registerLbl.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        registerLbl.setForeground(new Color(0, 200, 255));
+        registerLbl.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        registerLbl.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) { registerLbl.setForeground(Color.WHITE); }
+            public void mouseExited(MouseEvent e) { registerLbl.setForeground(new Color(0, 200, 255)); }
+            public void mouseClicked(MouseEvent e) { MainUI.instance.checkManager(); }
         });
+        loginCard.add(registerLbl);
 
-        // 🔥 ENTER KEY LISTENER
+        // ================= ASSEMBLE THE CARDS =================
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0; 
+        gbc.gridy = 0;
+        gbc.insets = new Insets(10, 0, 10, 0); // Adds a clean 10px vertical gap between the cards
+        bg.add(topCard, gbc);
+
+        gbc.gridy = 1;
+        bg.add(loginCard, gbc);
+
+        // ================= ACTIONS & LISTENERS =================
+        loginBtn.addActionListener(e -> login());
+        exitBtn.addActionListener(e -> System.exit(0));
+
         KeyAdapter enterAction = new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    loginBtn.doClick(); // Simulates clicking the login button
-                }
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) loginBtn.doClick(); 
             }
         };
 
-        // Attach listener to all fields
         idField.addKeyListener(enterAction);
         userField.addKeyListener(enterAction);
         passField.addKeyListener(enterAction);
@@ -97,15 +160,15 @@ public class LogInUI extends JPanel {
 
     private void addLabel(JPanel card, String text, int y) {
         JLabel label = new JLabel(text);
-        label.setBounds(40, y, 100, 30);
+        label.setBounds(40, y, 90, 30);
         label.setForeground(Color.WHITE);
-        label.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        label.setFont(new Font("Segoe UI", Font.BOLD, 13));
         card.add(label);
     }
 
     private JTextField addTextField(JPanel card, int y) {
         JTextField tf = new JTextField();
-        tf.setBounds(140, y, 150, 30);
+        tf.setBounds(130, y, 210, 30);
         styleField(tf);
         card.add(tf);
         return tf;
@@ -119,17 +182,7 @@ public class LogInUI extends JPanel {
         tf.setFont(new Font("Segoe UI", Font.PLAIN, 13));
     }
 
-    private JButton createButton(String text, int y) {
-        JButton btn = new ModernButton(text);
-        btn.setBounds(40, y, 250, 35);
-        return btn;
-    }
-
-    // =========================
-    // 🔥 LOGIN LOGIC
-    // =========================
     public void login() {
-
         String id = idField.getText().trim();
         String username = userField.getText().trim();
         String password = new String(passField.getPassword());
@@ -165,7 +218,6 @@ public class LogInUI extends JPanel {
                     return;
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -233,4 +285,5 @@ public class LogInUI extends JPanel {
         if (id.matches("C\\d{3}")) return "customer.txt";
         return null;
     }
+    
 }

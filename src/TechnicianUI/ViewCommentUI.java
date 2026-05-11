@@ -40,7 +40,7 @@ public class ViewCommentUI extends JPanel {
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
         
-        // 🔥 Yellow Theme for Header
+        // Yellow Theme for Header
         table.getTableHeader().setBackground(new Color(255, 180, 0));
         table.getTableHeader().setForeground(Color.BLACK);
         table.setSelectionBackground(new Color(255, 180, 0));

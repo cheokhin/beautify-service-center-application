@@ -47,7 +47,6 @@ public class SignInUI extends JFrame {
         passField.setBounds(140,165,130,28);
         styleField(passField);
 
-        // 🔥 关键：先设默认隐藏
         passField.setEchoChar('•');
 
         card.add(passField);
@@ -57,7 +56,7 @@ public class SignInUI extends JFrame {
         eyeBtn.setBounds(270,165,30,28);
         eyeBtn.setFocusPainted(false);
 
-        // 🔥 toggle
+        // Toggle
         eyeBtn.addActionListener(e -> {
             if (passField.getEchoChar() == (char)0) {
                 passField.setEchoChar('•'); // hide
@@ -93,7 +92,7 @@ public class SignInUI extends JFrame {
     }
 
     // =========================
-    // 🔥 UI helper
+    // UI helper
     // =========================
 
     private void addLabel(JPanel panel,String text,int y){
@@ -127,7 +126,7 @@ public class SignInUI extends JFrame {
     }
 
     // =========================
-    // 🔥 REGISTER LOGIC（改 validation）
+    // REGISTER LOGIC
     // =========================
 
     public void register(){
@@ -153,7 +152,7 @@ public class SignInUI extends JFrame {
             return;
         }
 
-        // 🔥 电话格式：0XX-XXX-XXXX
+        // 电话格式：0XX-XXX-XXXX
         if(!phone.matches("0\\d{2}-\\d{3}-\\d{4}")){
             new ModernDialog(this,"Phone format: 0XX-XXX-XXXX");
             return;

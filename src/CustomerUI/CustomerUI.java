@@ -179,7 +179,7 @@ public class CustomerUI extends JPanel implements UserDashboard {
         });
 
         logoutBtn.addActionListener(e -> {
-            MainUI.instance.showPage("MAIN_MENU");
+            MainUI.instance.showPage("LOGIN");
             MainUI.instance.mainContainer.remove(this); 
         });
     }

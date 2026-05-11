@@ -64,7 +64,7 @@ public class EditTechnicianProfileUI extends JPanel {
         addLabel(card, "Experience:", y); txtExp = addField(card, y); y += 45;
         addLabel(card, "Date Joined:", y); txtDate = addField(card, y); txtDate.setEditable(false); y += 60;
 
-        // 🔥 Centered Button
+        // Centered Button
         JButton updateBtn = new ModernButton(" Update");
         updateBtn.setBounds(225, y, 130, 40);
         card.add(updateBtn);

@@ -57,7 +57,7 @@ public class AnalyzedReportUI extends JPanel {
     }
 
     // ==========================================
-    // 🔥 MAIN REPORT FUNCTION (Logic Unchanged)
+    // MAIN REPORT FUNCTION
     // ==========================================
     private String generateReport() {
         int total = 0, completed = 0, pending = 0, cancelled = 0;

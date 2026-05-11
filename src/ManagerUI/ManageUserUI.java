@@ -19,15 +19,14 @@ public class ManageUserUI extends JPanel {
     public ManageUserUI(String id) {
         this.managerId = id;
         buildUI();
-        // 🔥 ALL SIZING AND ROUTING LOGIC REMOVED! ManagerUI handles it now.
     }
 
     private void buildUI() {
-        setOpaque(false); // 🔥 Makes this whole panel transparent to let the main gradient show
+        setOpaque(false); // Makes this whole panel transparent to let the main gradient show
         setLayout(new BorderLayout());
 
         JPanel bg = new JPanel();
-        bg.setOpaque(false); // 🔥 Replaced GradientPanel with a transparent JPanel
+        bg.setOpaque(false);
         bg.setLayout(new GridBagLayout());
         add(bg, BorderLayout.CENTER);
 
@@ -111,7 +110,7 @@ public class ManageUserUI extends JPanel {
     }
 
     // ==========================================
-    // 🔥 CREATE FUNCTION
+    // CREATE FUNCTION
     // ==========================================
     private void showAddUserDialog() {
         String role = (String) roleSelect.getSelectedItem();
@@ -263,7 +262,7 @@ public class ManageUserUI extends JPanel {
     }
 
     // ==========================================
-    // 🔥 UPDATE FUNCTION
+    // UPDATE FUNCTION
     // ==========================================
     private void showEditUserDialog() {
         String idToEdit = showModernInputDialog("Enter User ID to Edit:");
@@ -356,7 +355,7 @@ public class ManageUserUI extends JPanel {
     }
 
     // ==========================================
-    // 🔥 DELETE FUNCTION
+    // DELETE FUNCTION
     // ==========================================
     private void deleteUser() {
         String idToDelete = showModernInputDialog("Enter User ID to Delete:");
@@ -394,7 +393,7 @@ public class ManageUserUI extends JPanel {
     }
 
     // ==========================================
-    // 🔥 UI HELPERS & COMPONENTS
+    // UI HELPERS & COMPONENTS
     // ==========================================
     
     private void addFormField(JPanel parent, String labelText, JTextField field) {

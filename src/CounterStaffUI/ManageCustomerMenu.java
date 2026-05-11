@@ -101,7 +101,6 @@ public class ManageCustomerMenu extends JPanel {
         viewAllBtn.addActionListener(e -> viewAllCustomers());
         clearBtn.addActionListener(e   -> clearFields());
         
-        // 🔥 SPA Back Router
         backBtn.addActionListener(e -> {
             CounterStaffMenu.instance.rightContainer.add(new ManagementMenu(counterID), "MANAGEMENT");
             CounterStaffMenu.instance.showRightPage("MANAGEMENT");

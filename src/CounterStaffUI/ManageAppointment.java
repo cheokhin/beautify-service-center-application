@@ -81,7 +81,7 @@ public class ManageAppointment extends JPanel {
         card.add(lblTechName);
         txtTechnicianName = addField(card, 180, 380);
 
-        // 🔥 ModernButtons applied
+        // ModernButtons applied
         JButton actionBtn          = new ModernButton(mode);
         JButton loadBtn            = new ModernButton("Load by ID");
         JButton viewAppointmentsBtn = new ModernButton("View Appointments");
@@ -118,7 +118,6 @@ public class ManageAppointment extends JPanel {
         viewTechBtn.addActionListener(e -> viewTechnicians());
         clearBtn.addActionListener(e -> clearFields());
         
-        // 🔥 SPA Back Router
         backBtn.addActionListener(e -> {
             CounterStaffMenu.instance.rightContainer.add(new Appointment(counterID), "APPOINTMENT");
             CounterStaffMenu.instance.showRightPage("APPOINTMENT");
@@ -174,7 +173,6 @@ public class ManageAppointment extends JPanel {
         }
     }
 
-    // 🔥 Replaced JOptionPane with beautiful ModernDialogs
     private void createAppointment() {
         String id = txtAppointmentID.getText().trim();
         String customerID = txtCustomerID.getText().trim();

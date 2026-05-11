@@ -56,7 +56,7 @@ public class ViewFeedbackUI extends JPanel {
     }
 
     // ==========================================
-    // 🔥 DATA LOGIC (Unchanged functionally)
+    // DATA LOGIC
     // ==========================================
 
     private void loadTechnicianFeedback(JTextArea textArea) {

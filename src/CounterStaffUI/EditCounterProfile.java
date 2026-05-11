@@ -73,7 +73,7 @@ public class EditCounterProfile extends JPanel {
         addLabel(card, "Phone:", 280);
         txtPhone = addField(card,280);
 
-        // 🔥 Centered update button
+        // Centered update button
         JButton updateBtn = new ModernButton("Update");
         updateBtn.setBounds(125,340,130,40); 
         card.add(updateBtn);

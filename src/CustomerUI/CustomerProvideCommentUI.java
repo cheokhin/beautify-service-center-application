@@ -60,7 +60,7 @@ public class CustomerProvideCommentUI extends JPanel {
         ratingBox.setBackground(Color.WHITE);
         card.add(ratingBox);
 
-        // 🔥 Centered Save Button
+        // Centered Save Button
         JButton saveBtn = new ModernButton(" Submit");
         saveBtn.setBounds(185, 340, 130, 40);
         card.add(saveBtn);
