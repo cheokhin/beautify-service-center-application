@@ -8,509 +8,229 @@ import java.io.FileReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import UI.MainUI;
-import UI.UserDashboard;
+import UI.*; 
+import UI.Components.*;
 
-public class TechnicianUI extends JFrame implements UserDashboard {
+public class TechnicianUI extends JPanel implements UserDashboard {
 
     private static final long serialVersionUID = 1L;
 
-    private String technicianID;
+    public static TechnicianUI instance; 
+    private String techID;
 
-    // Empty constructor for polymorphism
-    public TechnicianUI() {}
+    public CardLayout rightCardLayout;
+    public JPanel rightContainer;
+
+    public TechnicianUI() {
+        instance = this;
+    }
 
     public TechnicianUI(String id) {
-
-        this.technicianID = id;
-
-        setTitle("Technician Dashboard");
-        setSize(750, 420);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-
-        // ================= BACKGROUND =================
-
-        JPanel bg = new GradientPanel();
-        bg.setLayout(new BorderLayout());
-
-        add(bg);
-
-        // ================= SIDEBAR =================
-
-        JPanel sidebar = new RoundedPanel(
-                25,
-                new Color(35, 30, 15)
-        );
-
-        sidebar.setPreferredSize(new Dimension(200, 0));
-        sidebar.setLayout(null);
-
-        bg.add(sidebar, BorderLayout.WEST);
-
-        // ================= AVATAR =================
-
-        JPanel avatar = new JPanel() {
-
-            private static final long serialVersionUID = 1L;
-
-            protected void paintComponent(Graphics g) {
-
-                super.paintComponent(g);
-
-                Graphics2D g2 = (Graphics2D) g;
-
-                g2.setRenderingHint(
-                        RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON
-                );
-
-                // Glow
-                g2.setColor(new Color(255, 200, 0, 80));
-                g2.fillOval(0, 0, getWidth(), getHeight());
-
-                // Circle
-                g2.setColor(new Color(255, 200, 0));
-                g2.fillOval(5, 5, getWidth() - 10, getHeight() - 10);
-
-                // Head
-                g2.setColor(Color.WHITE);
-                g2.fillOval(32, 22, 26, 26);
-
-                // Body
-                g2.fillRoundRect(24, 50, 42, 28, 20, 20);
-            }
-        };
-
-        avatar.setBounds(55, 30, 90, 90);
-        avatar.setOpaque(false);
-
-        sidebar.add(avatar);
-
-        // ================= TECHNICIAN INFO =================
-
-        String technicianName = getTechnicianName(technicianID);
-
-        JLabel nameLabel = new JLabel(technicianName);
-        nameLabel.setBounds(30, 130, 140, 25);
-        nameLabel.setForeground(Color.WHITE);
-        nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        sidebar.add(nameLabel);
-
-        JLabel idLabel = new JLabel(technicianID);
-        idLabel.setBounds(30, 160, 140, 20);
-        idLabel.setForeground(Color.LIGHT_GRAY);
-        idLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        idLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        sidebar.add(idLabel);
-
-        JLabel roleLabel = new JLabel("TECHNICIAN");
-        roleLabel.setBounds(30, 195, 140, 25);
-        roleLabel.setForeground(new Color(255, 200, 0));
-        roleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        roleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        sidebar.add(roleLabel);
-
-        JLabel welcomeLabel = new JLabel("Ready For Work!");
-        welcomeLabel.setBounds(20, 235, 160, 25);
-        welcomeLabel.setForeground(Color.WHITE);
-        welcomeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        sidebar.add(welcomeLabel);
-
-        // ================= TIME =================
-
-        JLabel timeLabel = new JLabel();
-        timeLabel.setBounds(20, 320, 160, 25);
-        timeLabel.setForeground(Color.WHITE);
-        timeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        sidebar.add(timeLabel);
-
-        Timer timer = new Timer(1000, e -> {
-
-            SimpleDateFormat sdf =
-                    new SimpleDateFormat("hh:mm:ss a");
-
-            timeLabel.setText(sdf.format(new Date()));
-        });
-
-        timer.start();
-
-        // ================= CENTER =================
-
-        JPanel centerWrapper = new JPanel(
-                new GridBagLayout()
-        );
-
-        centerWrapper.setOpaque(false);
-
-        bg.add(centerWrapper, BorderLayout.CENTER);
-
-        // ================= MENU CARD =================
-
-        JPanel card = new RoundedPanel(
-                25,
-                new Color(45, 40, 20)
-        );
-
-        card.setPreferredSize(new Dimension(360, 350));
-        card.setLayout(null);
-
-        centerWrapper.add(card);
-
-        // ================= TITLE =================
-
-        JLabel title = new JLabel(
-                " TECHNICIAN MENU",
-                SwingConstants.CENTER
-        );
-
-        title.setBounds(70, 20, 220, 30);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        title.setForeground(Color.WHITE);
-
-        card.add(title);
-
-        // ================= BUTTONS =================
-
-        JButton jobBtn = createButton(
-                " View Assigned Jobs",
-                70
-        );
-
-        JButton updateBtn = createButton(
-                " Update Job Status",
-                115
-        );
-
-        JButton profileBtn = createButton(
-                " Edit Profile",
-                160
-        );
-
-        JButton feedbackBtn = createButton(
-                " Provide Feedback",
-                205
-        );
-
-        JButton commentBtn = createButton(
-                " View Comment",
-                250
-        );
-
-        JButton logoutBtn = createButton(
-                " Logout",
-                295
-        );
-
-        card.add(jobBtn);
-        card.add(updateBtn);
-        card.add(profileBtn);
-        card.add(feedbackBtn);
-        card.add(commentBtn);
-        card.add(logoutBtn);
-
-        // ================= LOGIC =================
-
-        jobBtn.addActionListener(e -> {
-            new TechnicianJobUI(technicianID);
-            dispose();
-        });
-
-        updateBtn.addActionListener(e -> {
-            new UpdateJobStatusUI(technicianID);
-            dispose();
-        });
-
-        profileBtn.addActionListener(e -> {
-            new EditTechnicianProfileUI(technicianID);
-            dispose();
-        });
-
-        feedbackBtn.addActionListener(e -> {
-            new ProvideFeedbackUI(technicianID);
-            dispose();
-        });
-
-        commentBtn.addActionListener(e -> {
-            new ViewCommentUI(technicianID);
-            dispose();
-        });
-
-        logoutBtn.addActionListener(e -> {
-            new MainUI();
-            dispose();
-        });
-
-        setVisible(true);
+        instance = this;
+        openMenu(id); 
     }
-
-    // ================= GET TECHNICIAN NAME =================
-
-    private String getTechnicianName(String id) {
-
-        try {
-
-            BufferedReader br =
-                    new BufferedReader(
-                            new FileReader("technician.txt")
-                    );
-
-            String line;
-
-            while ((line = br.readLine()) != null) {
-
-                String[] data = line.split(",");
-
-                if (data[0].equals(id)) {
-
-                    br.close();
-
-                    return data[1];
-                }
-            }
-
-            br.close();
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-        }
-
-        return "Technician";
-    }
-
-    // ================= INTERFACE =================
 
     @Override
     public void openMenu(String id) {
-
-        new TechnicianUI(id);
+        this.techID = id;
+        buildUI(); 
+        
+        MainUI.instance.mainContainer.add(this, "TECHNICIAN_DASHBOARD");
+        MainUI.instance.showPage("TECHNICIAN_DASHBOARD");
     }
 
-    // ================= BUTTON CREATOR =================
+    private void buildUI() {
+        setLayout(new BorderLayout()); 
 
-    private JButton createButton(String text, int y) {
+        JPanel bg = new GradientPanel(new Color(30, 25, 10), new Color(255, 200, 0));
+        bg.setLayout(new BorderLayout());
+        add(bg, BorderLayout.CENTER);
 
+        // ================= SIDEBAR =================
+        JPanel sidebar = new JPanel();
+        sidebar.setBackground(new Color(35, 35, 50));
+        sidebar.setLayout(null);
+        sidebar.setPreferredSize(new Dimension(240, 580)); 
+
+        JScrollPane sidebarScroll = new JScrollPane(sidebar);
+        sidebarScroll.setPreferredSize(new Dimension(240, 0));
+        sidebarScroll.setBorder(BorderFactory.createEmptyBorder()); 
+        sidebarScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        sidebarScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        sidebarScroll.getVerticalScrollBar().setUnitIncrement(16); 
+        sidebarScroll.getVerticalScrollBar().setBackground(new Color(35, 35, 50)); 
+        sidebarScroll.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0)); 
+        
+        bg.add(sidebarScroll, BorderLayout.WEST);
+
+        // ================= AVATAR =================
+        JPanel avatar = new JPanel() {
+            private static final long serialVersionUID = 1L;
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                g2.setColor(new Color(255, 200, 0, 80)); 
+                g2.fillOval(0, 0, getWidth(), getHeight());
+                
+                g2.setColor(new Color(255, 200, 0)); 
+                g2.fillOval(5, 5, getWidth() - 10, getHeight() - 10);
+                
+                g2.setColor(Color.WHITE);
+                g2.fillOval(32, 22, 26, 26);
+                g2.fillRoundRect(24, 50, 42, 28, 20, 20);
+            }
+        };
+        avatar.setBounds(75, 20, 90, 90); 
+        avatar.setOpaque(false);
+        
+        avatar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        avatar.setToolTipText("Return to Dashboard");
+        avatar.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                showRightPage("DASHBOARD");
+            }
+        });
+        sidebar.add(avatar);
+
+        // ================= LABELS =================
+        String techName = getTechnicianName(this.techID);
+
+        JLabel nameLabel = new JLabel(techName);
+        nameLabel.setBounds(20, 120, 200, 25);
+        nameLabel.setForeground(Color.WHITE);
+        nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sidebar.add(nameLabel);
+
+        JLabel idLabel = new JLabel(this.techID);
+        idLabel.setBounds(20, 145, 200, 20);
+        idLabel.setForeground(Color.LIGHT_GRAY);
+        idLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        idLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sidebar.add(idLabel);
+
+        JLabel roleLabel = new JLabel("TECHNICIAN");
+        roleLabel.setBounds(20, 170, 200, 25);
+        roleLabel.setForeground(new Color(255, 200, 0)); 
+        roleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        roleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sidebar.add(roleLabel);
+
+        // ================= NAVIGATION BUTTONS =================
+        JButton currentJobBtn = createSidebarButton(" Current Job", 215);
+        JButton updateStatusBtn = createSidebarButton(" Update Status", 265);
+        JButton feedbackBtn = createSidebarButton(" Provide Feedback", 315);
+        JButton commentBtn = createSidebarButton(" View Comment", 365);
+        JButton profileBtn = createSidebarButton(" Edit Profile", 415);
+        JButton logoutBtn = createSidebarButton(" Log Out", 465);
+
+        sidebar.add(currentJobBtn);
+        sidebar.add(updateStatusBtn);
+        sidebar.add(feedbackBtn);
+        sidebar.add(commentBtn);
+        sidebar.add(profileBtn);
+        sidebar.add(logoutBtn);
+
+        JLabel timeLabel = new JLabel();
+        timeLabel.setBounds(20, 530, 200, 25);
+        timeLabel.setForeground(Color.WHITE);
+        timeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sidebar.add(timeLabel);
+
+        Timer timer = new Timer(1000, e -> {
+            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss a");
+            timeLabel.setText(sdf.format(new Date()));
+        });
+        timer.start();
+
+        // ================= RIGHT SIDE CONTAINER =================
+        rightCardLayout = new CardLayout();
+        rightContainer = new JPanel(rightCardLayout);
+        rightContainer.setOpaque(false); 
+        bg.add(rightContainer, BorderLayout.CENTER);
+
+        rightContainer.add(createWelcomeScreen(), "DASHBOARD");
+        rightCardLayout.show(rightContainer, "DASHBOARD");
+
+        // ================= ACTIONS =================
+        currentJobBtn.addActionListener(e -> {
+            rightContainer.add(new TechnicianJobUI(this.techID), "CURRENT_JOB");
+            showRightPage("CURRENT_JOB");
+        });
+
+        updateStatusBtn.addActionListener(e -> {
+            rightContainer.add(new UpdateJobStatusUI(this.techID), "UPDATE_STATUS");
+            showRightPage("UPDATE_STATUS");
+        });
+
+        feedbackBtn.addActionListener(e -> {
+            rightContainer.add(new ProvideFeedbackUI(this.techID), "PROVIDE_FEEDBACK");
+            showRightPage("PROVIDE_FEEDBACK");
+        });
+
+        commentBtn.addActionListener(e -> {
+            rightContainer.add(new ViewCommentUI(this.techID), "VIEW_COMMENT");
+            showRightPage("VIEW_COMMENT");
+        });
+
+        profileBtn.addActionListener(e -> {
+            rightContainer.add(new EditTechnicianProfileUI(this.techID), "EDIT_PROFILE");
+            showRightPage("EDIT_PROFILE");
+        });
+
+        logoutBtn.addActionListener(e -> {
+            MainUI.instance.showPage("MAIN_MENU");
+            MainUI.instance.mainContainer.remove(this); 
+        });
+    }
+
+    public void showRightPage(String pageName) {
+        rightCardLayout.show(rightContainer, pageName);
+    }
+
+    private JButton createSidebarButton(String text, int y) {
         JButton btn = new ModernButton(text);
-
-        btn.setBounds(70, y, 220, 35);
-
+        btn.setBounds(20, y, 200, 40);
         return btn;
     }
 
-    // ================= GRADIENT BACKGROUND =================
+    private JPanel createWelcomeScreen() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setOpaque(false);
+        
+        JPanel card = new RoundedPanel(25, new Color(35, 35, 50));
+        card.setPreferredSize(new Dimension(400, 200));
+        
+        card.setLayout(new GridLayout(2, 1));
+        
+        // 🔥 Using your exact 45, 0, 45, 0 margin constraints!
+        card.setBorder(BorderFactory.createEmptyBorder(45, 0, 45, 0));
 
-    class GradientPanel extends JPanel {
+        JLabel title = new JLabel("Technician Dashboard", SwingConstants.CENTER);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        title.setForeground(Color.WHITE);
+        card.add(title);
 
-        private static final long serialVersionUID = 1L;
+        JLabel subtitle = new JLabel("Select an option from the sidebar to begin.", SwingConstants.CENTER);
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitle.setForeground(new Color(255, 200, 0));
+        card.add(subtitle);
 
-        protected void paintComponent(Graphics g) {
-
-            super.paintComponent(g);
-
-            Graphics2D g2 = (Graphics2D) g;
-
-            GradientPaint gp = new GradientPaint(
-                    0,
-                    0,
-                    new Color(30, 25, 10),
-
-                    getWidth(),
-                    getHeight(),
-
-                    new Color(255, 200, 0)
-            );
-
-            g2.setPaint(gp);
-
-            g2.fillRect(
-                    0,
-                    0,
-                    getWidth(),
-                    getHeight()
-            );
-        }
+        panel.add(card);
+        return panel;
     }
 
-    // ================= ROUNDED PANEL =================
-
-    class RoundedPanel extends JPanel {
-
-        private static final long serialVersionUID = 1L;
-
-        private int radius;
-        private Color bgColor;
-
-        public RoundedPanel(
-                int radius,
-                Color color
-        ) {
-
-            this.radius = radius;
-            this.bgColor = color;
-
-            setOpaque(false);
-        }
-
-        protected void paintComponent(Graphics g) {
-
-            Graphics2D g2 =
-                    (Graphics2D) g.create();
-
-            g2.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON
-            );
-
-            g2.setColor(bgColor);
-
-            g2.fillRoundRect(
-                    0,
-                    0,
-                    getWidth(),
-                    getHeight(),
-                    radius,
-                    radius
-            );
-
-            g2.dispose();
-
-            super.paintComponent(g);
-        }
-    }
-
-    // ================= MODERN BUTTON =================
-
-    class ModernButton extends JButton {
-
-        private static final long serialVersionUID = 1L;
-
-        private boolean hovering = false;
-        private boolean pressed = false;
-
-        private Color bgColor =
-                new Color(80, 70, 30);
-
-        private Color hoverColor =
-                new Color(255, 200, 0);
-
-        public ModernButton(String text) {
-
-            super(text);
-
-            setContentAreaFilled(false);
-            setFocusPainted(false);
-            setBorderPainted(false);
-
-            setForeground(Color.WHITE);
-
-            setFont(
-                    new Font(
-                            "Segoe UI",
-                            Font.PLAIN,
-                            14
-                    )
-            );
-
-            addMouseListener(new MouseAdapter() {
-
-                public void mouseEntered(MouseEvent e) {
-
-                    hovering = true;
-                    repaint();
-                }
-
-                public void mouseExited(MouseEvent e) {
-
-                    hovering = false;
-                    pressed = false;
-
-                    repaint();
-                }
-
-                public void mousePressed(MouseEvent e) {
-
-                    pressed = true;
-                    repaint();
-                }
-
-                public void mouseReleased(MouseEvent e) {
-
-                    pressed = false;
-                    repaint();
-                }
-            });
-        }
-
-        protected void paintComponent(Graphics g) {
-
-            Graphics2D g2 =
-                    (Graphics2D) g.create();
-
-            g2.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON
-            );
-
-            int w = getWidth();
-            int h = getHeight();
-
-            // Shadow
-            if (!pressed) {
-
-                g2.setColor(
-                        new Color(0, 0, 0, 80)
-                );
-
-                g2.fillRoundRect(
-                        4,
-                        4,
-                        w - 4,
-                        h - 4,
-                        20,
-                        20
-                );
+    private String getTechnicianName(String id) {
+        try (BufferedReader br = new BufferedReader(new FileReader("technician.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data[0].equals(id)) return data[1];
             }
-
-            // Button Color
-            if (pressed)
-
-                g2.setColor(
-                        bgColor.darker()
-                );
-
-            else if (hovering)
-
-                g2.setColor(
-                        hoverColor
-                );
-
-            else
-
-                g2.setColor(
-                        bgColor
-                );
-
-            g2.fillRoundRect(
-                    0,
-                    0,
-                    w - 4,
-                    h - 4,
-                    20,
-                    20
-            );
-
-            g2.dispose();
-
-            super.paintComponent(g);
-        }
+        } catch (Exception e) {}
+        return "Technician";
     }
 }

@@ -2,937 +2,153 @@ package CustomerUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
+import UI.Components.*; 
 
-public class CustomerEditProfileUI extends JFrame {
+public class CustomerEditProfileUI extends JPanel {
 
     private static final long serialVersionUID = 1L;
-
-    JTextField nameField, userField, emailField, phoneField;
-    JTextField carField, plateField, yearField;
-
-    JPasswordField passField;
-
-    JLabel idLabel, typeLabel;
-
-    String customerID;
+    private String customerID;
+    private JTextField txtID, txtName, txtUsername, txtEmail, txtPhone, txtModel, txtReg, txtYear;
+    private JPasswordField txtPassword;
+    private JComboBox<String> typeBox;
 
     public CustomerEditProfileUI(String id) {
-
         this.customerID = id;
 
-        setTitle("Edit Profile");
+        setOpaque(false);
+        setLayout(new GridBagLayout());
 
-        setSize(750,650);
-
-        setLocationRelativeTo(null);
-
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        // =====================================================
-        // Background
-        // =====================================================
-        JPanel bg = new GradientPanel();
-
-        bg.setLayout(new GridBagLayout());
-
-        add(bg);
-
-        // =====================================================
-        // Main Card
-        // =====================================================
-        JPanel card = new RoundedPanel(
-                30,
-                new Color(35,35,50)
-        );
-
-        card.setPreferredSize(
-                new Dimension(580,540)
-        );
-
+        JPanel card = new RoundedPanel(30, new Color(35, 35, 50));
+        card.setPreferredSize(new Dimension(650, 620)); 
         card.setLayout(null);
 
-        // =====================================================
-        // Title
-        // =====================================================
-        JLabel title = new JLabel(
-                "EDIT PROFILE",
-                SwingConstants.CENTER
-        );
-
-        title.setBounds(150,20,280,35);
-
+        JLabel title = new JLabel("EDIT CUSTOMER PROFILE", SwingConstants.CENTER);
+        title.setBounds(0, 20, 650, 35);
         title.setForeground(Color.WHITE);
-
-        title.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        24
-                )
-        );
-
-        Icon titleIcon = resizeIcon(
-                UIManager.getIcon(
-                        "FileView.fileIcon"
-                ),
-                24,
-                24
-        );
-
-        title.setIcon(titleIcon);
-
-        title.setIconTextGap(10);
-
+        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
         card.add(title);
 
-        // =====================================================
-        // Labels & Fields
-        // =====================================================
-        addLabel(card, "ID:", 80);
+        int y = 80;
+        int col1 = 50, col2 = 150, col3 = 350, col4 = 440;
 
-        idLabel = createValueLabel();
+        addLabel(card, "ID:", col1, y); txtID = addField(card, col2, y, 160); txtID.setEditable(false);
+        addLabel(card, "Name:", col3, y); txtName = addField(card, col4, y, 160); y += 45;
 
-        idLabel.setBounds(220,80,250,30);
+        addLabel(card, "Username:", col1, y); txtUsername = addField(card, col2, y, 160);
+        addLabel(card, "Password:", col3, y);
+        
+        txtPassword = new JPasswordField();
+        styleField(txtPassword);
+        txtPassword.setBounds(col4, y, 100, 30);
+        txtPassword.setEchoChar('•');
+        card.add(txtPassword);
 
-        card.add(idLabel);
-
-        addLabel(card, "Name:", 120);
-
-        nameField = addField(card,120);
-
-        addLabel(card, "Username:", 160);
-
-        userField = addField(card,160);
-
-        addLabel(card, "Password:", 200);
-
-        passField = new JPasswordField();
-        styleField(passField);
-        passField.setBounds(220,200,215,35);  // 缩短宽度留位给眼睛按钮
-        card.add(passField);
-
-        JButton eyeBtn = new JButton("👁");
-        eyeBtn.setBounds(438,200,32,35);      // 紧贴在 passField 右边
+        JButton eyeBtn = new JButton("Show");
+        eyeBtn.setBounds(550, y, 50, 30);
         eyeBtn.setFocusPainted(false);
-        eyeBtn.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        eyeBtn.setBackground(new Color(60, 60, 80));
+        eyeBtn.setForeground(Color.WHITE);
+        eyeBtn.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        eyeBtn.setMargin(new Insets(0,0,0,0));
         eyeBtn.addActionListener(e -> {
-            if (passField.getEchoChar() == (char)0) {
-                passField.setEchoChar('•');
-            } else {
-                passField.setEchoChar((char)0);
-            }
+            if (txtPassword.getEchoChar() == (char)0) { txtPassword.setEchoChar('•'); eyeBtn.setText("Show"); }
+            else { txtPassword.setEchoChar((char)0); eyeBtn.setText("Hide"); }
         });
-        card.add(eyeBtn);
+        card.add(eyeBtn); y += 45;
 
-        passField.setBounds(220,200,250,35);
+        addLabel(card, "Email:", col1, y); txtEmail = addField(card, col2, y, 160);
+        addLabel(card, "Phone:", col3, y); txtPhone = addField(card, col4, y, 160); y += 45;
 
-        card.add(passField);
+        addLabel(card, "Model:", col1, y); txtModel = addField(card, col2, y, 160);
+        addLabel(card, "Reg No:", col3, y); txtReg = addField(card, col4, y, 160); y += 45;
 
-        addLabel(card, "Email:", 240);
+        addLabel(card, "Year:", col1, y); txtYear = addField(card, col2, y, 160);
+        addLabel(card, "Type:", col3, y);
+        typeBox = new JComboBox<>(new String[]{"Walk-in", "Booking"});
+        typeBox.setBounds(col4, y, 160, 30);
+        typeBox.setBackground(Color.WHITE);
+        typeBox.setEnabled(false); // Type is usually fixed
+        card.add(typeBox); y += 60;
 
-        emailField = addField(card,240);
+        // 🔥 Centered Button
+        JButton updateBtn = new ModernButton(" Update Profile");
+        updateBtn.setBounds(250, y, 150, 40);
+        card.add(updateBtn);
 
-        addLabel(card, "Phone:", 280);
-
-        phoneField = addField(card,280);
-
-        addLabel(card, "Car Model:", 320);
-
-        carField = addField(card,320);
-
-        addLabel(card, "Plate No:", 360);
-
-        plateField = addField(card,360);
-
-        addLabel(card, "Year:", 400);
-
-        yearField = addField(card,400);
-
-        addLabel(card, "Type:", 440);
-
-        typeLabel = createValueLabel();
-
-        typeLabel.setBounds(220,440,250,30);
-
-        card.add(typeLabel);
-
-        // =====================================================
-        // Buttons
-        // =====================================================
-        Icon saveIcon = resizeIcon(
-                UIManager.getIcon(
-                        "FileView.floppyDriveIcon"
-                ),
-                18,
-                18
-        );
-
-        JButton saveBtn =
-                new ModernButton(
-                        " Save",
-                        saveIcon
-                );
-
-        saveBtn.setBounds(140,490,130,40);
-
-        card.add(saveBtn);
-
-        Icon backIcon = resizeIcon(
-                UIManager.getIcon(
-                        "OptionPane.errorIcon"
-                ),
-                18,
-                18
-        );
-
-        JButton backBtn =
-                new ModernButton(
-                        " Back",
-                        backIcon
-                );
-
-        backBtn.setBounds(310,490,130,40);
-
-        card.add(backBtn);
-
-        // =====================================================
-        // Load Data
-        // =====================================================
-        loadData();
-
-        // =====================================================
-        // Button Actions
-        // =====================================================
-        saveBtn.addActionListener(
-                e -> updateData()
-        );
-
-        backBtn.addActionListener(e -> {
-
-            new CustomerUI(customerID);
-
-            dispose();
-        });
-
-        // =====================================================
-        // Add Card
-        // =====================================================
-        bg.add(card);
-
-        setVisible(true);
+        loadProfile();
+        updateBtn.addActionListener(e -> updateProfile());
+        add(card);
     }
 
-    // =========================================================
-    // Add Label
-    // =========================================================
-    private void addLabel(
-            JPanel panel,
-            String text,
-            int y
-    ) {
-
+    private void addLabel(JPanel panel, String text, int x, int y) {
         JLabel label = new JLabel(text);
-
-        label.setBounds(70,y,120,30);
-
+        label.setBounds(x, y, 90, 30);
         label.setForeground(Color.WHITE);
-
-        label.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        15
-                )
-        );
-
+        label.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         panel.add(label);
     }
 
-    // =========================================================
-    // Add TextField
-    // =========================================================
-    private JTextField addField(
-            JPanel panel,
-            int y
-    ) {
-
-        JTextField tf = new JTextField();
-
-        styleField(tf);
-
-        tf.setBounds(220,y,250,35);
-
-        panel.add(tf);
-
-        return tf;
+    private JTextField addField(JPanel panel, int x, int y, int width) {
+        JTextField field = new JTextField();
+        styleField(field);
+        field.setBounds(x, y, width, 30);
+        panel.add(field);
+        return field;
     }
 
-    // =========================================================
-    // Style Field
-    // =========================================================
     private void styleField(JTextField tf) {
-
         tf.setBackground(Color.WHITE);
-
         tf.setForeground(Color.BLACK);
-
         tf.setCaretColor(Color.BLACK);
-
-        tf.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
-        tf.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                new Color(180,180,180)
-                        ),
-                        BorderFactory.createEmptyBorder(
-                                5,
-                                10,
-                                5,
-                                10
-                        )
-                )
-        );
+        tf.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tf.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(180, 180, 180)),
+                BorderFactory.createEmptyBorder(5, 8, 5, 8)
+        ));
     }
 
-    // =========================================================
-    // Create Value Label
-    // =========================================================
-    private JLabel createValueLabel() {
-
-        JLabel lbl = new JLabel();
-
-        lbl.setForeground(Color.WHITE);
-
-        lbl.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        15
-                )
-        );
-
-        return lbl;
-    }
-
-    // =========================================================
-    // Load Data
-    // =========================================================
-    private void loadData() {
-
-        try (BufferedReader br =
-                     new BufferedReader(
-                             new FileReader(
-                                     "customer.txt"
-                             )
-                     )) {
-
+    private void loadProfile() {
+        try (BufferedReader br = new BufferedReader(new FileReader("customer.txt"))) {
             String line;
-
             while ((line = br.readLine()) != null) {
-
                 String[] data = line.split(",");
-
                 if (data[0].equals(customerID)) {
-
-                    idLabel.setText(data[0]);
-
-                    nameField.setText(data[1]);
-
-                    userField.setText(data[2]);
-
-                    passField.setText(data[3]);
-
-                    emailField.setText(data[4]);
-
-                    phoneField.setText(data[5]);
-
-                    carField.setText(data[6]);
-
-                    plateField.setText(data[7]);
-
-                    yearField.setText(data[8]);
-
-                    typeLabel.setText(data[9]);
-
-                    break;
+                    txtID.setText(data[0]); txtName.setText(data[1]); txtUsername.setText(data[2]); txtPassword.setText(data[3]);
+                    txtEmail.setText(data[4]); txtPhone.setText(data[5]); txtModel.setText(data[6]); txtReg.setText(data[7]);
+                    txtYear.setText(data[8]); typeBox.setSelectedItem(data[9]); break;
                 }
             }
-
-        } catch (Exception e) {
-
-            new ModernDialog(
-                    this,
-                    "Error loading profile!"
-            );
-        }
+        } catch (Exception e) { new ModernDialog("Error loading profile!"); }
     }
 
-    // =========================================================
-    // Update Data
-    // =========================================================
-    private void updateData() {
-    	
-    	String name = nameField.getText().trim();
+    private void updateProfile() {
+        String name = txtName.getText().trim(), username = txtUsername.getText().trim();
+        String password = new String(txtPassword.getPassword()).trim(), email = txtEmail.getText().trim();
+        String phone = txtPhone.getText().trim(), model = txtModel.getText().trim(), reg = txtReg.getText().trim(), year = txtYear.getText().trim();
 
-    	String username = userField.getText().trim();
+        if (name.isEmpty() || username.isEmpty() || password.isEmpty() || email.isEmpty() || phone.isEmpty() || model.isEmpty() || reg.isEmpty() || year.isEmpty()) {
+            new ModernDialog("All fields must be filled!"); return;
+        }
+        if (!email.contains("@")) { new ModernDialog("Email must contain @"); return; }
+        if (!phone.matches("\\d+")) { new ModernDialog("Phone must be numeric!"); return; }
+        if (!year.matches("\\d{4}")) { new ModernDialog("Year must be 4 digits!"); return; }
 
-    	String password =
-    	        new String(
-    	                passField.getPassword()
-    	        ).trim();
-
-    	String email =
-    	        emailField.getText().trim();
-
-    	String phone =
-    	        phoneField.getText().trim();
-
-    	String car =
-    	        carField.getText().trim();
-
-    	String plate =
-    	        plateField.getText().trim();
-
-    	String year =
-    	        yearField.getText().trim();
-
-    	// ======================================
-    	// Empty Validation
-    	// ======================================
-    	if (name.isEmpty() ||
-    	    username.isEmpty() ||
-    	    password.isEmpty() ||
-    	    email.isEmpty() ||
-    	    phone.isEmpty() ||
-    	    car.isEmpty() ||
-    	    plate.isEmpty() ||
-    	    year.isEmpty()) {
-
-    	    new ModernDialog(
-    	            this,
-    	            "All fields are required!"
-    	    );
-
-    	    return;
-    	}
-
-    	// ======================================
-    	// Email Validation
-    	// ======================================
-    	if (!email.contains("@")) {
-
-    	    new ModernDialog(
-    	            this,
-    	            "Email must contain @"
-    	    );
-
-    	    return;
-    	}
-
-    	// ======================================
-    	// Phone Validation
-    	// Format: 0XX-XXX-XXXX
-    	// ======================================
-    	if (!phone.matches(
-    	        "0\\d{2}-\\d{3}-\\d{4}"
-    	)) {
-
-    	    new ModernDialog(
-    	            this,
-    	            "Phone format: 0XX-XXX-XXXX"
-    	    );
-
-    	    return;
-    	}
-
-    	// ======================================
-    	// Year Validation
-    	// 4 digits only
-    	// ======================================
-    	if (!year.matches("\\d{4}")) {
-
-    	    new ModernDialog(
-    	            this,
-    	            "Year must be 4 digits"
-    	    );
-
-    	    return;
-    	}
-    	
-        ArrayList<String> list =
-                new ArrayList<>();
-
-        try (BufferedReader br =
-                     new BufferedReader(
-                             new FileReader(
-                                     "customer.txt"
-                             )
-                     )) {
-
+        ArrayList<String> list = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader("customer.txt"))) {
             String line;
-
             while ((line = br.readLine()) != null) {
-
-                String[] data = line.split(",");
-
-                if (data[0].equals(customerID)) {
-
-                    line =
-                            data[0] + "," +
-                            name + "," +
-                            username + "," +
-                            password + "," +
-                            email + "," +
-                            phone + "," +
-                            car + "," +
-                            plate + "," +
-                            year +  "," +
-                            data[9];
+                if (line.split(",")[0].equals(customerID)) {
+                    line = txtID.getText() + "," + name + "," + username + "," + password + "," + email + "," + phone + "," + model + "," + reg + "," + year + "," + typeBox.getSelectedItem();
                 }
-
                 list.add(line);
             }
-
-        } catch (Exception e) {
-
-            new ModernDialog(
-                    this,
-                    "Error updating profile!"
-            );
-        }
-
-        // =====================================================
-        // Save File
-        // =====================================================
-        try (BufferedWriter bw =
-                     new BufferedWriter(
-                             new FileWriter(
-                                     "customer.txt"
-                             )
-                     )) {
-
-            for (String s : list) {
-
-                bw.write(s);
-
-                bw.newLine();
-            }
-
-            new ModernDialog(
-                    this,
-                    "Profile Updated Successfully!"
-            );
-
-        } catch (Exception e) {
-
-            new ModernDialog(
-                    this,
-                    "Error saving profile!"
-            );
-        }
-    }
-
-    // =========================================================
-    // Gradient Background
-    // =========================================================
-    class GradientPanel extends JPanel {
-
-        private static final long serialVersionUID = 1L;
-
-        protected void paintComponent(Graphics g) {
-
-            super.paintComponent(g);
-
-            Graphics2D g2 =
-                    (Graphics2D) g;
-
-            GradientPaint gp =
-                    new GradientPaint(
-
-                            0,
-                            0,
-                            new Color(20,20,40),
-
-                            getWidth(),
-                            getHeight(),
-
-                            new Color(0,200,255)
-                    );
-
-            g2.setPaint(gp);
-
-            g2.fillRect(
-                    0,
-                    0,
-                    getWidth(),
-                    getHeight()
-            );
-        }
-    }
-
-    // =========================================================
-    // Rounded Panel
-    // =========================================================
-    class RoundedPanel extends JPanel {
-
-        private static final long serialVersionUID = 1L;
-
-        private int radius;
-
-        private Color bgColor;
-
-        public RoundedPanel(
-                int radius,
-                Color color
-        ) {
-
-            this.radius = radius;
-
-            this.bgColor = color;
-
-            setOpaque(false);
-        }
-
-        protected void paintComponent(Graphics g) {
-
-            Graphics2D g2 =
-                    (Graphics2D) g.create();
-
-            g2.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON
-            );
-
-            g2.setColor(bgColor);
-
-            g2.fillRoundRect(
-                    0,
-                    0,
-                    getWidth(),
-                    getHeight(),
-                    radius,
-                    radius
-            );
-
-            g2.dispose();
-
-            super.paintComponent(g);
-        }
-    }
-
-    // =========================================================
-    // Modern Button
-    // =========================================================
-    class ModernButton extends JButton {
-
-        private static final long serialVersionUID = 1L;
-
-        private boolean hovering = false;
-
-        private boolean pressed = false;
-
-        private Color bgColor =
-                new Color(60,60,80);
-
-        private Color hoverColor =
-                new Color(0,200,255);
-
-        public ModernButton(
-                String text,
-                Icon icon
-        ) {
-
-            super(text, icon);
-
-            setContentAreaFilled(false);
-
-            setFocusPainted(false);
-
-            setBorderPainted(false);
-
-            setForeground(Color.WHITE);
-
-            setFont(
-                    new Font(
-                            "Segoe UI",
-                            Font.PLAIN,
-                            14
-                    )
-            );
-
-            setHorizontalAlignment(
-                    SwingConstants.CENTER
-            );
-
-            setIconTextGap(10);
-
-            addMouseListener(
-                    new MouseAdapter() {
-
-                        public void mouseEntered(
-                                MouseEvent e
-                        ) {
-
-                            hovering = true;
-
-                            repaint();
-                        }
-
-                        public void mouseExited(
-                                MouseEvent e
-                        ) {
-
-                            hovering = false;
-
-                            pressed = false;
-
-                            repaint();
-                        }
-
-                        public void mousePressed(
-                                MouseEvent e
-                        ) {
-
-                            pressed = true;
-
-                            repaint();
-                        }
-
-                        public void mouseReleased(
-                                MouseEvent e
-                        ) {
-
-                            pressed = false;
-
-                            repaint();
-                        }
-                    }
-            );
-        }
-
-        protected void paintComponent(Graphics g) {
-
-            Graphics2D g2 =
-                    (Graphics2D) g.create();
-
-            g2.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON
-            );
-
-            int w = getWidth();
-
-            int h = getHeight();
-
-            if (!pressed) {
-
-                g2.setColor(
-                        new Color(0,0,0,80)
-                );
-
-                g2.fillRoundRect(
-                        4,
-                        4,
-                        w-4,
-                        h-4,
-                        20,
-                        20
-                );
-            }
-
-            if (pressed)
-                g2.setColor(bgColor.darker());
-
-            else if (hovering)
-                g2.setColor(hoverColor);
-
-            else
-                g2.setColor(bgColor);
-
-            g2.fillRoundRect(
-                    0,
-                    0,
-                    w-4,
-                    h-4,
-                    20,
-                    20
-            );
-
-            g2.dispose();
-
-            super.paintComponent(g);
-        }
-    }
-
-    // =========================================================
-    // Modern Dialog
-    // =========================================================
-    class ModernDialog extends JDialog {
-
-        private static final long serialVersionUID = 1L;
-
-        public ModernDialog(
-                JFrame parent,
-                String message
-        ) {
-
-            super(parent, true);
-
-            setUndecorated(true);
-
-            setSize(320,160);
-
-            setLocationRelativeTo(parent);
-
-            setOpacity(0f);
-
-            JPanel panel = new JPanel();
-
-            panel.setLayout(null);
-
-            panel.setBackground(
-                    new Color(30,30,30)
-            );
-
-            panel.setBorder(
-                    BorderFactory.createLineBorder(
-                            new Color(0,200,255),
-                            2
-                    )
-            );
-
-            add(panel);
-
-            Icon icon =
-                    UIManager.getIcon(
-                            "OptionPane.informationIcon"
-                    );
-
-            JLabel iconLabel = new JLabel(
-                    resizeIcon(icon,30,30)
-            );
-
-            iconLabel.setBounds(20,30,30,30);
-
-            panel.add(iconLabel);
-
-            JLabel msg = new JLabel(
-                    "<html>" + message + "</html>"
-            );
-
-            msg.setBounds(60,20,220,40);
-
-            msg.setForeground(Color.WHITE);
-
-            msg.setFont(
-                    new Font(
-                            "Segoe UI",
-                            Font.PLAIN,
-                            13
-                    )
-            );
-
-            panel.add(msg);
-
-            JButton okBtn = new JButton("OK");
-
-            okBtn.setBounds(70,80,100,30);
-
-            okBtn.setFocusPainted(false);
-
-            okBtn.setBackground(
-                    new Color(60,60,80)
-            );
-
-            okBtn.setForeground(Color.WHITE);
-
-            okBtn.addActionListener(
-                    e -> dispose()
-            );
-
-            panel.add(okBtn);
-
-            animate();
-
-            setVisible(true);
-        }
-
-        // =====================================================
-        // Animation
-        // =====================================================
-        private void animate() {
-
-            Timer timer =
-                    new Timer(15, null);
-
-            final float[] opacity = {0f};
-
-            final double[] scale = {0.8};
-
-            timer.addActionListener(e -> {
-
-                if (opacity[0] < 1f) {
-
-                    opacity[0] += 0.08f;
-
-                    scale[0] += 0.03;
-
-                    setOpacity(
-                            Math.min(
-                                    opacity[0],
-                                    1f
-                            )
-                    );
-
-                    int w =
-                            (int)(200 * scale[0]);
-
-                    int h =
-                            (int)(120 * scale[0]);
-
-                    setSize(w,h);
-
-                    setLocationRelativeTo(
-                            getParent()
-                    );
-
-                } else {
-
-                    timer.stop();
-                }
-            });
-
-            timer.start();
-        }
-    }
-
-    // =========================================================
-    // Resize Icon
-    // =========================================================
-    private Icon resizeIcon(
-            Icon icon,
-            int w,
-            int h
-    ) {
-
-        Image img = ((ImageIcon) icon)
-                .getImage()
-                .getScaledInstance(
-                        w,
-                        h,
-                        Image.SCALE_SMOOTH
-                );
-
-        return new ImageIcon(img);
+        } catch (Exception e) { new ModernDialog("Error updating profile!"); }
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("customer.txt"))) {
+            for (String s : list) { bw.write(s); bw.newLine(); }
+            new ModernDialog("Profile Updated Successfully!");
+        } catch (Exception e) { new ModernDialog("Error saving profile!"); }
     }
 }

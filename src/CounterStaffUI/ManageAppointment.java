@@ -1,152 +1,154 @@
 package CounterStaffUI;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.List;
 import UTILS.FileUtil;
+import UI.Components.*;
 
-public class ManageAppointment extends JFrame {
+public class ManageAppointment extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private String counterID;
     private String mode;
 
-    // ── UI Components ──────────────────────────────────────────────
     private JTextField txtAppointmentID, txtCustomerID, txtDate, txtTask, txtDuration;
     private JTextField txtTechnicianID, txtTechnicianName;
     private JComboBox<String> serviceBox, statusBox;
     private JTextArea textArea;
-
-    // Technician labels kept as fields so mode config can show/hide them
     private JLabel lblTechID, lblTechName;
 
-    // ── Constructor ────────────────────────────────────────────────
     public ManageAppointment(String counterID, String mode) {
         this.counterID = counterID;
         this.mode = mode;
 
-        setTitle("Manage Appointment - " + mode);
-        setSize(800, 600);
-        setLayout(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setOpaque(false); // 🔥 Transparent for SPA
+        setLayout(new GridBagLayout());
 
-        initComponents();
-        applyModeConfig();
+        JPanel card = new RoundedPanel(30, new Color(35, 35, 50));
+        card.setPreferredSize(new Dimension(760, 560));
+        card.setLayout(null);
+
+        initComponents(card);
+        applyModeConfig(card);
         updateDuration();
-        setVisible(true);
+        
+        add(card);
     }
 
-    // ── UI Initialization ──────────────────────────────────────────
-    private void initComponents() {
-        JLabel title = new JLabel("MANAGE APPOINTMENT - " + mode);
-        title.setBounds(280, 15, 250, 30);
-        add(title);
+    private void initComponents(JPanel card) {
+        JLabel title = new JLabel("MANAGE APPOINTMENT - " + mode, SwingConstants.CENTER);
+        title.setBounds(0, 15, 760, 30);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        title.setForeground(Color.WHITE);
+        card.add(title);
 
-        // Input fields
-        addLabel("Appointment ID:",    40, 60);
-        txtAppointmentID = addField(180, 60);
+        addLabel(card, "Appointment ID:", 40, 60);
+        txtAppointmentID = addField(card, 180, 60);
 
-        addLabel("Customer ID:",       40, 100);
-        txtCustomerID = addField(180, 100);
+        addLabel(card, "Customer ID:", 40, 100);
+        txtCustomerID = addField(card, 180, 100);
 
-        addLabel("Date (YYYY-MM-DD):", 40, 140);
-        txtDate = addField(180, 140);
+        addLabel(card, "Date (YYYY-MM-DD):", 40, 140);
+        txtDate = addField(card, 180, 140);
 
-        addLabel("Service Type:",      40, 180);
+        addLabel(card, "Service Type:", 40, 180);
         serviceBox = new JComboBox<>(new String[]{"Normal", "Major"});
-        serviceBox.setBounds(180, 180, 220, 25);
-        add(serviceBox);
+        serviceBox.setBounds(180, 180, 220, 30);
+        card.add(serviceBox);
 
-        addLabel("Status:",            40, 220);
+        addLabel(card, "Status:", 40, 220);
         statusBox = new JComboBox<>(new String[]{"Unpaid", "Paid", "Cancel"});
-        statusBox.setBounds(180, 220, 220, 25);
-        add(statusBox);
+        statusBox.setBounds(180, 220, 220, 30);
+        card.add(statusBox);
 
-        addLabel("Task:",              40, 260);
-        txtTask = addField(180, 260);
+        addLabel(card, "Task:", 40, 260);
+        txtTask = addField(card, 180, 260);
 
-        addLabel("Duration:",          40, 300);
-        txtDuration = addField(180, 300);
+        addLabel(card, "Duration:", 40, 300);
+        txtDuration = addField(card, 180, 300);
         txtDuration.setEditable(false);
 
-        // Technician fields
         lblTechID = new JLabel("Technician ID:");
         lblTechID.setBounds(40, 340, 130, 25);
-        add(lblTechID);
-        txtTechnicianID = addField(180, 340);
+        lblTechID.setForeground(Color.WHITE);
+        card.add(lblTechID);
+        txtTechnicianID = addField(card, 180, 340);
 
         lblTechName = new JLabel("Technician Name:");
         lblTechName.setBounds(40, 380, 130, 25);
-        add(lblTechName);
-        txtTechnicianName = addField(180, 380);
+        lblTechName.setForeground(Color.WHITE);
+        card.add(lblTechName);
+        txtTechnicianName = addField(card, 180, 380);
 
-        // Buttons
-        JButton actionBtn          = new JButton(mode);
-        JButton loadBtn            = new JButton("Load by ID");
-        JButton viewAppointmentsBtn = new JButton("View Appointments");
-        JButton viewTechBtn        = new JButton("View Technicians");
-        JButton clearBtn           = new JButton("Clear");
-        JButton backBtn            = new JButton("Back");
+        // 🔥 ModernButtons applied
+        JButton actionBtn          = new ModernButton(mode);
+        JButton loadBtn            = new ModernButton("Load by ID");
+        JButton viewAppointmentsBtn = new ModernButton("View Appointments");
+        JButton viewTechBtn        = new ModernButton("View Technicians");
+        JButton clearBtn           = new ModernButton("Clear");
+        JButton backBtn            = new ModernButton("Back");
 
-        actionBtn.setBounds(500,           70, 180, 30);
-        loadBtn.setBounds(500,            110, 180, 30);
-        viewAppointmentsBtn.setBounds(500, 150, 180, 30);
-        viewTechBtn.setBounds(500,        190, 180, 30);
-        clearBtn.setBounds(500,           230, 180, 30);
-        backBtn.setBounds(500,            270, 180, 30);
+        actionBtn.setBounds(500,           70, 180, 35);
+        loadBtn.setBounds(500,            115, 180, 35);
+        viewAppointmentsBtn.setBounds(500, 160, 180, 35);
+        viewTechBtn.setBounds(500,        205, 180, 35);
+        clearBtn.setBounds(500,           250, 180, 35);
+        backBtn.setBounds(500,            295, 180, 35);
 
-        add(actionBtn);
-        add(loadBtn);
-        add(viewAppointmentsBtn);
-        add(viewTechBtn);
-        add(clearBtn);
-        add(backBtn);
+        card.add(actionBtn);
+        card.add(loadBtn);
+        card.add(viewAppointmentsBtn);
+        card.add(viewTechBtn);
+        card.add(clearBtn);
+        card.add(backBtn);
 
-        // Text area
         textArea = new JTextArea();
+        textArea.setBackground(new Color(20, 20, 30));
+        textArea.setForeground(new Color(0, 200, 255));
+        textArea.setFont(new Font("Consolas", Font.PLAIN, 13));
         JScrollPane sp = new JScrollPane(textArea);
-        sp.setBounds(40, 440, 700, 100);
-        add(sp);
+        sp.setBounds(40, 440, 680, 100);
+        card.add(sp);
 
-        // ── Action Listeners ───────────────────────────────────────
         serviceBox.addActionListener(e -> updateDuration());
-        actionBtn.addActionListener(e          -> performAction());
-        loadBtn.addActionListener(e            -> loadAppointment());
+        actionBtn.addActionListener(e -> performAction());
+        loadBtn.addActionListener(e -> loadAppointment());
         viewAppointmentsBtn.addActionListener(e -> viewAppointments());
-        viewTechBtn.addActionListener(e        -> viewTechnicians());
-        clearBtn.addActionListener(e           -> clearFields());
+        viewTechBtn.addActionListener(e -> viewTechnicians());
+        clearBtn.addActionListener(e -> clearFields());
+        
+        // 🔥 SPA Back Router
         backBtn.addActionListener(e -> {
-            new Appointment(counterID);
-            dispose();
+            CounterStaffMenu.instance.rightContainer.add(new Appointment(counterID), "APPOINTMENT");
+            CounterStaffMenu.instance.showRightPage("APPOINTMENT");
         });
     }
 
-    private void addLabel(String text, int x, int y) {
+    private void addLabel(JPanel card, String text, int x, int y) {
         JLabel label = new JLabel(text);
         label.setBounds(x, y, 130, 25);
-        add(label);
+        label.setForeground(Color.WHITE);
+        card.add(label);
     }
 
-    private JTextField addField(int x, int y) {
+    private JTextField addField(JPanel card, int x, int y) {
         JTextField tf = new JTextField();
-        tf.setBounds(x, y, 220, 25);
-        add(tf);
+        tf.setBounds(x, y, 220, 30);
+        tf.setBackground(new Color(60, 60, 80));
+        tf.setForeground(Color.WHITE);
+        tf.setCaretColor(Color.WHITE);
+        tf.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
+        card.add(tf);
         return tf;
     }
 
-    // ── Mode Configuration ─────────────────────────────────────────
-    private void applyModeConfig() {
+    private void applyModeConfig(JPanel card) {
         switch (mode) {
             case "UPDATE":
                 txtCustomerID.setEditable(true);
-                txtDate.setEditable(true);
-                txtTask.setEditable(true);
                 txtDuration.setEditable(false);
-                serviceBox.setEnabled(true);
-                statusBox.setEnabled(true);
-                txtTechnicianID.setEditable(true);
-                txtTechnicianName.setEditable(true);
                 break;
-
             case "ASSIGN":
                 txtCustomerID.setEditable(false);
                 txtDate.setEditable(false);
@@ -154,10 +156,7 @@ public class ManageAppointment extends JFrame {
                 txtDuration.setEditable(false);
                 serviceBox.setEnabled(false);
                 statusBox.setEnabled(false);
-                txtTechnicianID.setEditable(true);
-                txtTechnicianName.setEditable(true);
                 break;
-
             default: // CREATE
                 lblTechID.setVisible(false);
                 lblTechName.setVisible(false);
@@ -167,7 +166,6 @@ public class ManageAppointment extends JFrame {
         }
     }
 
-    // ── Action Dispatcher ──────────────────────────────────────────
     private void performAction() {
         switch (mode) {
             case "CREATE": createAppointment(); break;
@@ -176,176 +174,116 @@ public class ManageAppointment extends JFrame {
         }
     }
 
-    // ── Create Appointment ─────────────────────────────────────────
+    // 🔥 Replaced JOptionPane with beautiful ModernDialogs
     private void createAppointment() {
-        String id            = txtAppointmentID.getText().trim();
-        String customerID    = txtCustomerID.getText().trim();
-        String date          = txtDate.getText().trim();
-        String serviceType   = serviceBox.getSelectedItem().toString();
-        String paymentStatus = statusBox.getSelectedItem().toString();
-        String task          = txtTask.getText().trim();
-        String duration      = txtDuration.getText().trim();
+        String id = txtAppointmentID.getText().trim();
+        String customerID = txtCustomerID.getText().trim();
+        String date = txtDate.getText().trim();
+        String task = txtTask.getText().trim();
 
-        // 1. Empty field check
         if (id.isEmpty() || customerID.isEmpty() || date.isEmpty() || task.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all required fields.");
+            new ModernDialog("Please fill in all required fields.");
             return;
         }
-
-        // 2. Appointment ID format check
         if (!id.matches("A\\d{3}")) {
-            JOptionPane.showMessageDialog(this, "Appointment ID must be like A001.");
+            new ModernDialog("Appointment ID must be like A001.");
             return;
         }
-
-        // 3. Customer existence check
         if (!customerExists(customerID)) {
-            JOptionPane.showMessageDialog(this, "Customer ID does not exist.");
+            new ModernDialog("Customer ID does not exist.");
             return;
         }
-
-        // 4. Date format check
         if (!date.matches("\\d{4}-\\d{2}-\\d{2}")) {
-            JOptionPane.showMessageDialog(this, "Date must be YYYY-MM-DD.");
+            new ModernDialog("Date must be YYYY-MM-DD.");
             return;
         }
-
-        // 5. Duplicate appointment ID check
         if (appointmentIDExists(id)) {
-            JOptionPane.showMessageDialog(this, "Appointment ID already exists.");
+            new ModernDialog("Appointment ID already exists.");
             return;
         }
 
-        // 6. Save record
-        String line = id + "," + customerID + "," + date + "," + serviceType + "," +
-                      paymentStatus + ",Pending," + task + "," + duration + ",NA";
+        String line = id + "," + customerID + "," + date + "," + serviceBox.getSelectedItem() + "," +
+                      statusBox.getSelectedItem() + ",Pending," + task + "," + txtDuration.getText() + ",NA";
         FileUtil.appendFile("appointment.txt", line);
 
-        JOptionPane.showMessageDialog(this, "Appointment created successfully.");
+        new ModernDialog("Appointment created successfully.");
         viewAppointments();
         clearFields();
     }
 
-    // ── Update Appointment ─────────────────────────────────────────
     private void updateAppointment() {
         String id = txtAppointmentID.getText().trim();
-
-        if (id.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Enter Appointment ID.");
-            return;
-        }
-
-        String customerID  = txtCustomerID.getText().trim();
-        String date        = txtDate.getText().trim();
-        String serviceType = serviceBox.getSelectedItem().toString();
-        String status      = statusBox.getSelectedItem().toString();
-        String task        = txtTask.getText().trim();
-        String duration    = txtDuration.getText().trim();
-
-        if (customerID.isEmpty() || date.isEmpty() || task.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all required fields.");
-            return;
-        }
+        if (id.isEmpty()) { new ModernDialog("Enter Appointment ID."); return; }
 
         List<String> lines = FileUtil.readFile("appointment.txt");
         for (int i = 0; i < lines.size(); i++) {
             String[] data = lines.get(i).split(",");
             if (data[0].equals(id)) {
-
-                // 1. Job status check
                 if (data[5].equalsIgnoreCase("Done")) {
-                    JOptionPane.showMessageDialog(this, "Done task cannot be updated.");
+                    new ModernDialog("Done task cannot be updated.");
                     return;
                 }
 
-                // 2. Optional technician assignment during update
-                String newTechID   = txtTechnicianID.getText().trim();
+                String newTechID = txtTechnicianID.getText().trim();
                 String newTechName = txtTechnicianName.getText().trim();
 
                 if (!newTechID.isEmpty() && !newTechName.isEmpty()) {
-                    if (!status.equalsIgnoreCase("Paid")) {
-                        JOptionPane.showMessageDialog(this, "Only PAID appointments can assign technician.");
+                    if (!statusBox.getSelectedItem().toString().equalsIgnoreCase("Paid")) {
+                        new ModernDialog("Only PAID appointments can assign technician.");
                         return;
                     }
-
                     if (!isTechnicianValid(newTechID, newTechName)) return;
                     data[8] = newTechID;
                 }
 
-                // 3. Save updated record
-                lines.set(i,
-                    id + "," + customerID + "," + date + "," + serviceType + "," +
-                    status + "," + data[5] + "," + task + "," + duration + "," + data[8]);
+                lines.set(i, id + "," + txtCustomerID.getText() + "," + txtDate.getText() + "," + 
+                             serviceBox.getSelectedItem() + "," + statusBox.getSelectedItem() + "," + 
+                             data[5] + "," + txtTask.getText() + "," + txtDuration.getText() + "," + data[8]);
 
                 FileUtil.writeFile("appointment.txt", lines);
-                JOptionPane.showMessageDialog(this, "Appointment updated successfully.");
+                new ModernDialog("Appointment updated successfully.");
                 viewAppointments();
                 return;
             }
         }
-
-        JOptionPane.showMessageDialog(this, "Appointment not found.");
+        new ModernDialog("Appointment not found.");
     }
 
-    // ── Assign Technician ──────────────────────────────────────────
     private void assignTechnician() {
-        String appointmentID  = txtAppointmentID.getText().trim();
-        String technicianID   = txtTechnicianID.getText().trim();
-        String technicianName = txtTechnicianName.getText().trim();
+        String appID = txtAppointmentID.getText().trim();
+        String techID = txtTechnicianID.getText().trim();
+        String techName = txtTechnicianName.getText().trim();
 
-        // 1. Empty field check
-        if (appointmentID.isEmpty() || technicianID.isEmpty() || technicianName.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Enter Appointment ID, Technician ID, and Technician Name.");
+        if (appID.isEmpty() || techID.isEmpty() || techName.isEmpty()) {
+            new ModernDialog("Enter Appointment ID, Tech ID, and Tech Name.");
             return;
         }
 
-        // 2. Find appointment
         List<String> appointments = FileUtil.readFile("appointment.txt");
-        int appointmentIndex      = -1;
-        String[] appointmentData  = null;
-
         for (int i = 0; i < appointments.size(); i++) {
             String[] data = appointments.get(i).split(",");
-            if (data[0].equals(appointmentID)) {
-                appointmentIndex = i;
-                appointmentData  = data;
-                break;
+            if (data[0].equals(appID)) {
+                if (!data[4].equalsIgnoreCase("Paid")) {
+                    new ModernDialog("Only PAID appointments can be assigned.");
+                    return;
+                }
+                if (!isTechnicianValid(techID, techName)) return;
+
+                data[8] = techID;
+                appointments.set(i, String.join(",", data));
+                FileUtil.writeFile("appointment.txt", appointments);
+                
+                new ModernDialog("Technician assigned successfully.");
+                viewAppointments();
+                return;
             }
         }
-
-        if (appointmentData == null) {
-            JOptionPane.showMessageDialog(this, "Appointment not found.");
-            return;
-        }
-
-        // 3. Payment status check
-        if (!appointmentData[4].equalsIgnoreCase("Paid")) {
-            JOptionPane.showMessageDialog(this, "Only PAID appointments can be assigned.");
-            return;
-        }
-
-        // 4. Validate technician
-        if (!isTechnicianValid(technicianID, technicianName)) return;
-
-        // 5. Save updated appointment with technician
-        appointments.set(appointmentIndex,
-            appointmentData[0] + "," + appointmentData[1] + "," + appointmentData[2] + "," +
-            appointmentData[3] + "," + appointmentData[4] + "," + appointmentData[5] + "," +
-            appointmentData[6] + "," + appointmentData[7] + "," + technicianID);
-
-        FileUtil.writeFile("appointment.txt", appointments);
-        JOptionPane.showMessageDialog(this, "Technician assigned successfully.");
-        viewAppointments();
+        new ModernDialog("Appointment not found.");
     }
 
-    // ── Load Appointment ───────────────────────────────────────────
     private void loadAppointment() {
         String id = txtAppointmentID.getText().trim();
-
-        if (id.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Enter Appointment ID.");
-            return;
-        }
+        if (id.isEmpty()) { new ModernDialog("Enter Appointment ID."); return; }
 
         List<String> lines = FileUtil.readFile("appointment.txt");
         for (String line : lines) {
@@ -361,90 +299,73 @@ public class ManageAppointment extends JFrame {
                 return;
             }
         }
-
-        JOptionPane.showMessageDialog(this, "Appointment not found.");
+        new ModernDialog("Appointment not found.");
     }
 
-    // ── View ───────────────────────────────────────────────────────
     private void viewAppointments() {
         List<String> lines = FileUtil.readFile("appointment.txt");
         textArea.setText("=== APPOINTMENTS ===\n");
-        for (String line : lines) {
-            textArea.append(line + "\n");
-        }
+        for (String line : lines) textArea.append(line + "\n");
+        textArea.setCaretPosition(0);
     }
 
     private void viewTechnicians() {
         List<String> lines = FileUtil.readFile("technician.txt");
         textArea.setText("=== TECHNICIANS ===\n");
-        for (String line : lines) {
-            textArea.append(line + "\n");
-        }
+        for (String line : lines) textArea.append(line + "\n");
+        textArea.setCaretPosition(0);
     }
 
-    // ── Clear Fields ───────────────────────────────────────────────
     private void clearFields() {
         txtAppointmentID.setText("");
         txtCustomerID.setText("");
         txtDate.setText("");
         txtTask.setText("");
-        if (txtTechnicianID != null)   txtTechnicianID.setText("");
+        if (txtTechnicianID != null) txtTechnicianID.setText("");
         if (txtTechnicianName != null) txtTechnicianName.setText("");
         serviceBox.setSelectedIndex(0);
         statusBox.setSelectedItem("Unpaid");
         updateDuration();
     }
 
-    // ── Helpers & Validation ───────────────────────────────────────
     private void updateDuration() {
         txtDuration.setText(serviceBox.getSelectedItem().equals("Normal") ? "1" : "3");
     }
 
     private boolean customerExists(String customerID) {
-        List<String> lines = FileUtil.readFile("customer.txt");
-        for (String line : lines) {
-            String[] data = line.split(",");
-            if (data[0].equals(customerID)) return true;
+        for (String line : FileUtil.readFile("customer.txt")) {
+            if (line.split(",")[0].equals(customerID)) return true;
         }
         return false;
     }
 
     private boolean appointmentIDExists(String appointmentID) {
-        List<String> lines = FileUtil.readFile("appointment.txt");
-        for (String line : lines) {
-            String[] data = line.split(",");
-            if (data[0].equals(appointmentID)) return true;
+        for (String line : FileUtil.readFile("appointment.txt")) {
+            if (line.split(",")[0].equals(appointmentID)) return true;
         }
         return false;
     }
 
-    /**
-     * Checks technician ID + name match and that they have fewer than 3 pending jobs.
-     * Shows dialog and returns false if any check fails.
-     */
     private boolean isTechnicianValid(String technicianID, String technicianName) {
-        List<String> technicians = FileUtil.readFile("technician.txt");
-        for (String techLine : technicians) {
+        for (String techLine : FileUtil.readFile("technician.txt")) {
             String[] techData = techLine.split(",");
             if (techData[0].equals(technicianID) && techData[1].equalsIgnoreCase(technicianName)) {
                 if (countPendingJobs(technicianID) >= 3) {
-                    JOptionPane.showMessageDialog(this, "Technician already has 3 pending tasks.");
+                    new ModernDialog("Technician already has 3 pending tasks.");
                     return false;
                 }
                 return true;
             }
         }
-        JOptionPane.showMessageDialog(this, "Technician ID and Name do not match.");
+        new ModernDialog("Technician ID and Name do not match.");
         return false;
     }
 
     private int countPendingJobs(String technicianID) {
         int count = 0;
-        List<String> lines = FileUtil.readFile("appointment.txt");
-        for (String line : lines) {
+        for (String line : FileUtil.readFile("appointment.txt")) {
             String[] data = line.split(",");
-            if (data[8].equals(technicianID) &&
-               (data[5].equalsIgnoreCase("Pending") || data[5].equalsIgnoreCase("In Progress"))) {
+            if (data[8].equals(technicianID) && (data[5].equalsIgnoreCase("Pending") || data[5].equalsIgnoreCase("In Progress"))) {
                 count++;
             }
         }

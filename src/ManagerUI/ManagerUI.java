@@ -43,19 +43,10 @@ public class ManagerUI extends JPanel implements UserDashboard {
     private void buildUI() {
         setLayout(new BorderLayout()); 
 
-        JPanel bg = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                GradientPaint gp = new GradientPaint(
-                        0, 0, new Color(20, 20, 40),
-                        getWidth(), getHeight(), new Color(0, 200, 255)
-                );
-                g2.setPaint(gp);
-                g2.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
+        JPanel bg = new GradientPanel(
+            new Color(20, 10, 10), 
+            new Color(255, 60, 60)
+        );
         bg.setLayout(new BorderLayout());
         add(bg, BorderLayout.CENTER);
 
@@ -63,7 +54,6 @@ public class ManagerUI extends JPanel implements UserDashboard {
         JPanel sidebar = new JPanel();
         sidebar.setBackground(new Color(35, 35, 50));
         sidebar.setLayout(null);
-        // 🔥 Set a fixed preferred size so the scrollpane knows when to activate
         sidebar.setPreferredSize(new Dimension(240, 580)); 
 
         // ================= SIDEBAR SCROLL PANE =================
@@ -85,9 +75,9 @@ public class ManagerUI extends JPanel implements UserDashboard {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(0, 200, 255, 80));
+                g2.setColor(new Color(255, 60, 60, 80));
                 g2.fillOval(0, 0, getWidth(), getHeight());
-                g2.setColor(new Color(0, 200, 255));
+                g2.setColor(new Color(255, 60, 60));
                 g2.fillOval(5, 5, getWidth() - 10, getHeight() - 10);
                 g2.setColor(Color.WHITE);
                 g2.fillOval(32, 22, 26, 26);
@@ -125,7 +115,7 @@ public class ManagerUI extends JPanel implements UserDashboard {
 
         JLabel roleLabel = new JLabel("MANAGER");
         roleLabel.setBounds(20, 170, 200, 25);
-        roleLabel.setForeground(new Color(0, 200, 255));
+        roleLabel.setForeground(new Color(255, 60, 60));
         roleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         roleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         sidebar.add(roleLabel);
@@ -215,16 +205,21 @@ public class ManagerUI extends JPanel implements UserDashboard {
         
         JPanel card = new RoundedPanel(25, new Color(35, 35, 50));
         card.setPreferredSize(new Dimension(400, 200));
+        
+        // Keep the GridLayout
         card.setLayout(new GridLayout(2, 1));
+        
+        // Add a 45-pixel margin to the top and bottom
+        card.setBorder(BorderFactory.createEmptyBorder(45, 0, 45, 0));
 
-        JLabel title = new JLabel("Welcome to Manager Dashboard", SwingConstants.CENTER);
+        JLabel title = new JLabel("Welcome to the Dashboard", SwingConstants.CENTER);
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         title.setForeground(Color.WHITE);
         card.add(title);
 
         JLabel subtitle = new JLabel("Select an option from the sidebar to begin.", SwingConstants.CENTER);
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        subtitle.setForeground(new Color(0, 200, 255));
+        subtitle.setForeground(new Color(255, 60, 60));
         card.add(subtitle);
 
         panel.add(card);

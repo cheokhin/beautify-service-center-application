@@ -212,10 +212,6 @@ public class LogInUI extends JPanel {
 
                 if (dashboard != null) {
                     dashboard.openMenu(id);
-                    
-                    if (!id.startsWith("M")) {
-                        MainUI.instance.setVisible(false); 
-                    }
                 }
 
                 loading.dispose();

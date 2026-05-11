@@ -1,163 +1,143 @@
 package CounterStaffUI;
 
 import javax.swing.*;
-import java.util.List;
+import java.awt.*;
 import UTILS.FileUtil;
+import UI.Components.*; 
 
-public class Receipt extends JFrame {
+public class Receipt extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private String counterID;
 
-    // ── UI Components ──────────────────────────────────────────────
     private JTextField txtReceiptID, txtPaymentID;
     private JTextArea receiptArea;
 
-    // ── Constructor ────────────────────────────────────────────────
     public Receipt(String counterID) {
         this.counterID = counterID;
 
-        setTitle("Generate Receipt");
-        setSize(650, 520);
-        setLayout(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setOpaque(false);
+        setLayout(new GridBagLayout());
 
-        initComponents();
-        setVisible(true);
+        JPanel card = new RoundedPanel(30, new Color(35, 35, 50));
+        card.setPreferredSize(new Dimension(650, 520));
+        card.setLayout(null);
+
+        initComponents(card);
+        add(card);
     }
 
-    // ── UI Initialization ──────────────────────────────────────────
-    private void initComponents() {
-        JLabel title = new JLabel("GENERATE RECEIPT");
-        title.setBounds(240, 20, 170, 30);
-        add(title);
+    private void initComponents(JPanel card) {
+        JLabel title = new JLabel("GENERATE RECEIPT", SwingConstants.CENTER);
+        title.setBounds(0, 20, 650, 30);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        title.setForeground(Color.WHITE);
+        card.add(title);
 
         JLabel lblReceiptID = new JLabel("Receipt ID:");
         JLabel lblPaymentID = new JLabel("Payment ID:");
 
-        lblReceiptID.setBounds(60,  80, 100, 25);
-        lblPaymentID.setBounds(60, 120, 100, 25);
+        lblReceiptID.setBounds(60, 80, 100, 25);
+        lblReceiptID.setForeground(Color.WHITE);
+        lblPaymentID.setBounds(60, 130, 100, 25);
+        lblPaymentID.setForeground(Color.WHITE);
 
-        add(lblReceiptID);
-        add(lblPaymentID);
+        card.add(lblReceiptID);
+        card.add(lblPaymentID);
 
         txtReceiptID = new JTextField();
         txtPaymentID = new JTextField();
 
-        txtReceiptID.setBounds(160,  80, 200, 25);
-        txtPaymentID.setBounds(160, 120, 200, 25);
+        txtReceiptID.setBounds(160, 80, 200, 30);
+        txtPaymentID.setBounds(160, 130, 200, 30);
+        
+        styleField(txtReceiptID);
+        styleField(txtPaymentID);
 
-        add(txtReceiptID);
-        add(txtPaymentID);
+        card.add(txtReceiptID);
+        card.add(txtPaymentID);
 
-        JButton generateBtn = new JButton("Generate");
-        JButton viewBtn     = new JButton("View Receipts");
-        JButton backBtn     = new JButton("Back");
+        JButton generateBtn = new ModernButton("Generate");
+        JButton viewBtn     = new ModernButton("View Receipts");
+        JButton backBtn     = new ModernButton("Back");
 
-        generateBtn.setBounds(400, 100, 140, 30);
-        viewBtn.setBounds(180,     170, 130, 30);
-        backBtn.setBounds(340,     170, 130, 30);
+        generateBtn.setBounds(400, 100, 160, 40);
+        viewBtn.setBounds(160, 190, 160, 40);
+        backBtn.setBounds(340, 190, 160, 40);
 
-        add(generateBtn);
-        add(viewBtn);
-        add(backBtn);
+        card.add(generateBtn);
+        card.add(viewBtn);
+        card.add(backBtn);
 
         receiptArea = new JTextArea();
+        receiptArea.setBackground(new Color(20, 20, 30));
+        receiptArea.setForeground(new Color(0, 200, 255));
+        receiptArea.setFont(new Font("Consolas", Font.PLAIN, 13));
+        
         JScrollPane sp = new JScrollPane(receiptArea);
-        sp.setBounds(60, 230, 500, 220);
-        add(sp);
+        sp.setBounds(60, 250, 520, 220);
+        card.add(sp);
 
-        // ── Action Listeners ───────────────────────────────────────
         generateBtn.addActionListener(e -> generateReceipt());
-        viewBtn.addActionListener(e     -> viewReceipts());
+        viewBtn.addActionListener(e -> viewReceipts());
+        
+        // 🔥 SPA Back Router
         backBtn.addActionListener(e -> {
-            new PaymentMenu(counterID);
-            dispose();
+            CounterStaffMenu.instance.rightContainer.add(new PaymentMenu(counterID), "PAYMENT");
+            CounterStaffMenu.instance.showRightPage("PAYMENT");
         });
     }
 
-    // ── Generate Receipt ───────────────────────────────────────────
+    private void styleField(JTextField tf) {
+        tf.setBackground(new Color(60, 60, 80));
+        tf.setForeground(Color.WHITE);
+        tf.setCaretColor(Color.WHITE);
+        tf.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
+    }
+
     private void generateReceipt() {
         String receiptID = txtReceiptID.getText().trim();
         String paymentID = txtPaymentID.getText().trim();
 
-        // 1. Empty field check
-        if (receiptID.isEmpty() || paymentID.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter Receipt ID and Payment ID.");
-            return;
-        }
+        if (receiptID.isEmpty() || paymentID.isEmpty()) { new ModernDialog("Please enter Receipt ID and Payment ID."); return; }
+        if (!receiptID.matches("R\\d{3}")) { new ModernDialog("Receipt ID must be like R001."); return; }
+        if (receiptIDExists(receiptID)) { new ModernDialog("Receipt ID already exists."); return; }
 
-        // 2. Receipt ID format check
-        if (!receiptID.matches("R\\d{3}")) {
-            JOptionPane.showMessageDialog(this, "Receipt ID must be like R001.");
-            return;
-        }
-
-        // 3. Duplicate receipt ID check
-        if (receiptIDExists(receiptID)) {
-            JOptionPane.showMessageDialog(this, "Receipt ID already exists.");
-            return;
-        }
-
-        // 4. Find payment and generate receipt
-        List<String> payments = FileUtil.readFile("payment.txt");
-        for (String line : payments) {
+        for (String line : FileUtil.readFile("payment.txt")) {
             String[] data = line.split(",");
             if (data[0].equals(paymentID)) {
-                String appointmentID = data[1];
-                String customerID    = data[2];
-                String amount        = data[3];
-                String method        = data[4];
-                String date          = data[5];
-
-                String receiptLine = receiptID + "," + paymentID + "," + appointmentID + "," +
-                                     customerID + "," + amount + "," + method + "," + date;
+                String receiptLine = receiptID + "," + paymentID + "," + data[1] + "," + data[2] + "," + data[3] + "," + data[4] + "," + data[5];
                 FileUtil.appendFile("receipt.txt", receiptLine);
-
-                receiptArea.setText(buildReceiptDisplay(
-                    receiptID, paymentID, appointmentID, customerID, amount, method, date
-                ));
-
-                JOptionPane.showMessageDialog(this, "Receipt generated successfully.");
+                receiptArea.setText(buildReceiptDisplay(receiptID, paymentID, data[1], data[2], data[3], data[4], data[5]));
+                new ModernDialog("Receipt generated successfully.");
                 return;
             }
         }
-
-        JOptionPane.showMessageDialog(this, "Payment not found. Receipt unavailable if not yet paid.");
+        new ModernDialog("Payment not found. Receipt unavailable if not yet paid.");
     }
 
-    // ── View Receipts ──────────────────────────────────────────────
     private void viewReceipts() {
-        List<String> lines = FileUtil.readFile("receipt.txt");
         receiptArea.setText("=== RECEIPTS ===\n");
-        for (String line : lines) {
-            receiptArea.append(line + "\n");
-        }
+        for (String line : FileUtil.readFile("receipt.txt")) receiptArea.append(line + "\n");
+        receiptArea.setCaretPosition(0);
     }
 
-    // ── Helpers & Validation ───────────────────────────────────────
     private boolean receiptIDExists(String receiptID) {
-        List<String> lines = FileUtil.readFile("receipt.txt");
-        for (String line : lines) {
-            String[] data = line.split(",");
-            if (data[0].equals(receiptID)) return true;
+        for (String line : FileUtil.readFile("receipt.txt")) {
+            if (line.split(",")[0].equals(receiptID)) return true;
         }
         return false;
     }
 
-    /**
-     * Builds the formatted receipt display string for the text area.
-     */
-    private String buildReceiptDisplay(String receiptID, String paymentID, String appointmentID,
-                                        String customerID, String amount, String method, String date) {
+    private String buildReceiptDisplay(String rID, String pID, String appID, String custID, String amt, String meth, String date) {
         return "========= RECEIPT =========\n" +
-               "Receipt ID     : " + receiptID     + "\n" +
-               "Payment ID     : " + paymentID     + "\n" +
-               "Appointment ID : " + appointmentID + "\n" +
-               "Customer ID    : " + customerID    + "\n" +
-               "Amount         : RM " + amount     + "\n" +
-               "Method         : " + method        + "\n" +
-               "Date           : " + date          + "\n" +
+               "Receipt ID     : " + rID + "\n" +
+               "Payment ID     : " + pID + "\n" +
+               "Appointment ID : " + appID + "\n" +
+               "Customer ID    : " + custID + "\n" +
+               "Amount         : RM " + amt + "\n" +
+               "Method         : " + meth + "\n" +
+               "Date           : " + date + "\n" +
                "===========================\n";
     }
 }
