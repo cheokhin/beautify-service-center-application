@@ -1,0 +1,4 @@
+A001,Engine Filter,5
+A001,Engine Oil,3
+A002,Brake Pad,10
+A003,Tyre,4

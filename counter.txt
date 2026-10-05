@@ -1,1 +1,3 @@
-CS001,CHRIS,C,123,C@,017-355-9722
+CS001,Chris,Tan,123,tan@gmail.com,017-355-9722,2026-05-18
+CS002,Ping,Leon,123,leon@gmail.com,013-623-1254,2026-05-20
+CS003,William,Will,123,will@gmail.com,013-121-7543,2026-05-26
