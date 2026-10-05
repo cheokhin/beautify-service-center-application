@@ -11,12 +11,10 @@ public class ModernButton extends JButton {
     private Color bgColor = new Color(60, 60, 80);
     private Color hoverColor = new Color(0, 200, 255);
 
-    // Constructor for normal buttons
     public ModernButton(String text) {
         this(text, null);
     }
 
-    // Constructor for buttons with icons (like in MainUI)
     public ModernButton(String text, Icon icon) {
         super(text, icon);
         setContentAreaFilled(false);

@@ -10,13 +10,15 @@ public class SetPriceUI extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private JTextField normalField, majorField;
+    private String managerId;
 
-    public SetPriceUI() {
+    public SetPriceUI(String managerId) {
+        this.managerId = managerId;
         buildUI();
     }
 
     private void buildUI() {
-        setOpaque(false); // Makes this whole panel transparent
+        setOpaque(false); 
         setLayout(new BorderLayout());
 
         JPanel bg = new JPanel();
@@ -29,14 +31,12 @@ public class SetPriceUI extends JPanel {
         card.setLayout(null);
         bg.add(card);
 
-        // ================= TITLE =================
         JLabel title = new JLabel("UPDATE PRICES", SwingConstants.CENTER);
         title.setBounds(80, 20, 200, 30);
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         title.setForeground(Color.WHITE);
         card.add(title);
 
-        // ================= INPUT FIELDS =================
         JLabel lblNormal = new JLabel("Normal Service (RM):");
         lblNormal.setBounds(40, 80, 150, 25);
         lblNormal.setForeground(Color.WHITE);
@@ -59,18 +59,15 @@ public class SetPriceUI extends JPanel {
         styleField(majorField);
         card.add(majorField);
 
-        // ================= BUTTONS =================
         JButton saveBtn = new ModernButton("Save Prices");
-        saveBtn.setBounds(100, 210, 160, 35); // Centered in the 360px wide card
+        saveBtn.setBounds(100, 210, 160, 35); 
         card.add(saveBtn);
 
-        // ================= ACTIONS =================
         loadPrices(); 
 
         saveBtn.addActionListener(e -> savePrices());
     }
 
-    // ================= LOGIC =================
 
     private void loadPrices() {
         try (BufferedReader br = new BufferedReader(new FileReader("prices.txt"))) {
@@ -104,19 +101,24 @@ public class SetPriceUI extends JPanel {
             bw.newLine();
             
             new ModernDialog("Prices updated successfully!");
+            
+            SystemLogger.log(this.managerId, "Manager", "Updated the global service pricing configuration");
+            
         } catch (Exception e) {
             new ModernDialog("Error saving prices.");
             e.printStackTrace();
         }
     }
 
-    // ================= UI HELPERS & COMPONENTS =================
 
     private void styleField(JTextField tf) {
         tf.setBackground(new Color(60, 60, 80));
         tf.setForeground(Color.WHITE);
         tf.setCaretColor(Color.WHITE);
-        tf.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
+        tf.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(255, 50, 80), 1),
+            BorderFactory.createEmptyBorder(5, 8, 5, 8)
+        ));
         tf.setFont(new Font("Segoe UI", Font.PLAIN, 14));
     }
 }

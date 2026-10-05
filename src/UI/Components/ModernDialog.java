@@ -7,24 +7,31 @@ import java.awt.*;
 public class ModernDialog extends JDialog {
     private static final long serialVersionUID = 1L;
 
-    // Standard constructor (Uses your SPA's MainUI as the parent so it centers perfectly)
+    private boolean confirmed = false;
+
     public ModernDialog(String message) {
-        super(MainUI.instance != null ? MainUI.instance : new JFrame(), true);
-        buildDialog(message);
+        this(message, false);
     }
 
-    // Fallback constructor for pages that load before MainUI (like SignInUI)
+    public ModernDialog(String message, boolean isConfirm) {
+        super(MainUI.instance != null ? MainUI.instance : new JFrame(), true);
+        buildDialog(message, isConfirm);
+    }
+
     public ModernDialog(JFrame parent, String message) {
         super(parent, true);
-        buildDialog(message);
+        buildDialog(message, false);
     }
 
-    private void buildDialog(String message) {
+    public boolean isConfirmed() {
+        return confirmed;
+    }
+
+    private void buildDialog(String message, boolean isConfirm) {
         setUndecorated(true);
-        setSize(240, 100); // Starts slightly smaller for the "pop-out" scaling effect
+        setSize(320, 140); 
         setLocationRelativeTo(getParent());
 
-        // Safely check if the user's OS supports fading windows
         boolean canFade = GraphicsEnvironment
                 .getLocalGraphicsEnvironment()
                 .getDefaultScreenDevice()
@@ -35,11 +42,10 @@ public class ModernDialog extends JDialog {
         JPanel panel = new JPanel();
         panel.setLayout(null);
         panel.setBackground(new Color(30, 30, 30));
-        // Unified Cyan/Blue border to match the SPA theme
-        panel.setBorder(BorderFactory.createLineBorder(new Color(0, 200, 255), 2));
+        panel.setBorder(BorderFactory.createLineBorder(new Color(139, 69, 19), 2));
         add(panel);
 
-        Icon icon = UIManager.getIcon("OptionPane.warningIcon");
+        Icon icon = UIManager.getIcon(isConfirm ? "OptionPane.questionIcon" : "OptionPane.warningIcon");
         JLabel iconLabel = new JLabel(resizeIcon(icon, 28, 28));
         iconLabel.setBounds(20, 25, 30, 30);
         panel.add(iconLabel);
@@ -50,33 +56,41 @@ public class ModernDialog extends JDialog {
         msg.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         panel.add(msg);
 
-        // Uses your newly shared ModernButton!
-        JButton okBtn = new ModernButton("OK");
-        okBtn.setBounds(110, 80, 100, 30);
-        okBtn.addActionListener(e -> dispose());
-        panel.add(okBtn);
+        if (isConfirm) {
+            JButton yesBtn = new ModernButton("Yes");
+            yesBtn.setBounds(50, 80, 100, 30);
+            yesBtn.addActionListener(e -> { confirmed = true; dispose(); });
+            panel.add(yesBtn);
+
+            JButton noBtn = new ModernButton("No");
+            noBtn.setBounds(170, 80, 100, 30);
+            noBtn.setBackground(new Color(60, 60, 80)); 
+            noBtn.addActionListener(e -> { confirmed = false; dispose(); });
+            panel.add(noBtn);
+        } else {
+            JButton okBtn = new ModernButton("OK");
+            okBtn.setBounds(110, 80, 100, 30);
+            okBtn.addActionListener(e -> { confirmed = true; dispose(); });
+            panel.add(okBtn);
+        }
 
         animate(canFade);
         setVisible(true);
     }
 
     private void animate(boolean canFade) {
-        Timer timer = new Timer(15, null);
+        if (!canFade) return;
+        
+        Timer timer = new Timer(10, null);
         final float[] opacity = {0f};
-        final double[] scale = {0.8};
 
         timer.addActionListener(e -> {
-            if (opacity[0] < 1f) {
-                opacity[0] += 0.08f;
-                scale[0] += 0.025;
-                if (canFade) setOpacity(Math.min(opacity[0], 1f));
-
-                int w = (int) (320 * scale[0]);
-                int h = (int) (140 * scale[0]);
-                setSize(w, h);
-                setLocationRelativeTo(getParent()); // Keep it centered while growing
-            } else {
+            opacity[0] += 0.06f; 
+            if (opacity[0] >= 1f) {
+                setOpacity(1f);
                 timer.stop();
+            } else {
+                setOpacity(opacity[0]);
             }
         });
         timer.start();

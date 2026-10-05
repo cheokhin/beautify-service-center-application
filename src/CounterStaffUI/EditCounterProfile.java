@@ -4,16 +4,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import UTILS.FileUtil;
-import UI.Components.*; 
+import UI.Components.*;
 
 public class EditCounterProfile extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private String counterID;
 
-    private JLabel txtID;
     private JTextField txtName, txtUsername, txtEmail, txtPhone;
     private JPasswordField txtPassword;
+    private JLabel txtID, dateLabel;
 
     public EditCounterProfile(String counterID) {
         this.counterID = counterID;
@@ -21,93 +21,147 @@ public class EditCounterProfile extends JPanel {
         setOpaque(false);
         setLayout(new GridBagLayout());
 
-        JPanel card = new RoundedPanel(30, new Color(35,35,50));
-        card.setPreferredSize(new Dimension(380,420));
+        JPanel card = new RoundedPanel(30, new Color(35, 35, 50));
+        card.setPreferredSize(new Dimension(650, 540));
         card.setLayout(null);
 
-        JLabel title = new JLabel("EDIT PROFILE", SwingConstants.CENTER);
-        title.setBounds(90,20,200,35);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        JLabel title = new JLabel("EDIT COUNTER STAFF PROFILE", SwingConstants.CENTER);
+        title.setBounds(0, 20, 650, 35);
         title.setForeground(Color.WHITE);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
         card.add(title);
 
-        addLabel(card, "Counter ID:", 80);
+        JSeparator topSep = new JSeparator();
+        topSep.setBounds(30, 63, 590, 1);
+        topSep.setForeground(new Color(55, 55, 80));
+        card.add(topSep);
+
+        card.add(makeSectionLabel("ACCOUNT", 30,  73));
+        card.add(makeSectionLabel("CONTACT", 30, 253));
+        card.add(makeSectionLabel("DETAILS", 30, 363));
+
+        int y = 90;
+        card.add(makeHintLabel("Counter ID", 50, y));
+        card.add(makeHintLabel("Full name",  350, y));
+        y += 18;
+
         txtID = new JLabel();
-        txtID.setBounds(150,80,180,28);
-        txtID.setForeground(Color.WHITE);
-        txtID.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        txtID.setBounds(50, y, 250, 34);
+        txtID.setForeground(new Color(210, 210, 235));
+        txtID.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        txtID.setOpaque(false);
         card.add(txtID);
 
-        addLabel(card, "Name:", 120);
-        txtName = addField(card,120);
+        txtName = addField(card, 350, y, 250);
 
-        addLabel(card, "Username:", 160);
-        txtUsername = addField(card,160);
+        y += 55;
+        card.add(makeHintLabel("Username", 50,  y));
+        card.add(makeHintLabel("Password", 350, y));
+        y += 18;
+        txtUsername = addField(card, 50, y, 250);
 
-        addLabel(card, "Password:", 200);
         txtPassword = new JPasswordField();
-        txtPassword.setBounds(150,200,150,30);
         styleField(txtPassword);
+        txtPassword.setBounds(350, y, 190, 34);
         txtPassword.setEchoChar('•');
         card.add(txtPassword);
 
-        JButton eyeBtn = new JButton("...");
-        eyeBtn.setBounds(305,200,45,30);
+        JButton eyeBtn = new JButton("Show");
+        eyeBtn.setBounds(548, y, 52, 34);
         eyeBtn.setFocusPainted(false);
-        eyeBtn.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 12));
-        eyeBtn.setBackground(new Color(60,60,80));
-        eyeBtn.setForeground(Color.WHITE);
-
+        eyeBtn.setBackground(new Color(55, 55, 75));
+        eyeBtn.setForeground(new Color(180, 180, 210));
+        eyeBtn.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        eyeBtn.setBorder(BorderFactory.createLineBorder(new Color(80, 80, 110)));
         eyeBtn.addActionListener(e -> {
-            if (txtPassword.getEchoChar() == (char)0) {
+            if (txtPassword.getEchoChar() == (char) 0) {
                 txtPassword.setEchoChar('•');
+                eyeBtn.setText("Show");
             } else {
-                txtPassword.setEchoChar((char)0);
+                txtPassword.setEchoChar((char) 0);
+                eyeBtn.setText("Hide");
             }
         });
         card.add(eyeBtn);
 
-        addLabel(card, "Email:", 240);
-        txtEmail = addField(card,240);
+        JSeparator sep1 = new JSeparator();
+        sep1.setBounds(30, 243, 590, 1);
+        sep1.setForeground(new Color(55, 55, 80));
+        card.add(sep1);
 
-        addLabel(card, "Phone:", 280);
-        txtPhone = addField(card,280);
+        y = 270;
+        card.add(makeHintLabel("Email", 50,  y));
+        card.add(makeHintLabel("Phone", 350, y));
+        y += 18;
+        txtEmail = addField(card, 50,  y, 250);
+        txtPhone = addField(card, 350, y, 250);
 
-        // Centered update button
-        JButton updateBtn = new ModernButton("Update");
-        updateBtn.setBounds(125,340,130,40); 
+        JSeparator sep2 = new JSeparator();
+        sep2.setBounds(30, 353, 590, 1);
+        sep2.setForeground(new Color(55, 55, 80));
+        card.add(sep2);
+
+        y = 380;
+        card.add(makeHintLabel("Date joined", 50, y));
+        y += 18;
+
+        dateLabel = new JLabel();
+        dateLabel.setBounds(50, y, 250, 34);
+        dateLabel.setForeground(new Color(210, 210, 235));
+        dateLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        dateLabel.setOpaque(false);
+        card.add(dateLabel);
+
+        JSeparator sep3 = new JSeparator();
+        sep3.setBounds(30, 463, 590, 1);
+        sep3.setForeground(new Color(55, 55, 80));
+        card.add(sep3);
+
+        JButton updateBtn = new ModernButton("Save changes");
+        updateBtn.setBounds(250, 480, 150, 40);
         card.add(updateBtn);
 
         loadProfile();
-
         updateBtn.addActionListener(e -> updateProfile());
-
         add(card);
     }
 
-    private void addLabel(JPanel panel, String text, int y) {
-        JLabel label = new JLabel(text);
-        label.setBounds(40,y,100,25);
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        panel.add(label);
+
+    private JLabel makeSectionLabel(String text, int x, int y) {
+        JLabel l = new JLabel(text);
+        l.setBounds(x, y, 300, 14);
+        l.setForeground(new Color(120, 120, 160));
+        l.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        return l;
     }
 
-    private JTextField addField(JPanel panel, int y) {
-        JTextField tf = new JTextField();
-        tf.setBounds(150,y,180,30);
-        styleField(tf);
-        panel.add(tf);
-        return tf;
+    private JLabel makeHintLabel(String text, int x, int y) {
+        JLabel l = new JLabel(text);
+        l.setBounds(x, y, 200, 14);
+        l.setForeground(new Color(150, 150, 185));
+        l.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        return l;
     }
 
-    private void styleField(JTextField field) {
-        field.setBackground(new Color(60,60,80));
-        field.setForeground(Color.WHITE);
-        field.setCaretColor(Color.WHITE);
-        field.setBorder(BorderFactory.createEmptyBorder(5,10,5,10));
-        field.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+    private JTextField addField(JPanel panel, int x, int y, int w) {
+        JTextField f = new JTextField();
+        styleField(f);
+        f.setBounds(x, y, w, 34);
+        panel.add(f);
+        return f;
     }
+
+    private void styleField(JTextField tf) {
+        tf.setBackground(new Color(28, 28, 45));
+        tf.setForeground(new Color(210, 210, 235));
+        tf.setCaretColor(new Color(180, 180, 220));
+        tf.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        tf.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(80, 80, 110)),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+    }
+
 
     private void loadProfile() {
         List<String> lines = FileUtil.readFile("counter.txt");
@@ -120,6 +174,7 @@ public class EditCounterProfile extends JPanel {
                 txtPassword.setText(data[3]);
                 txtEmail.setText(data[4]);
                 txtPhone.setText(data[5]);
+                if (data.length > 6) dateLabel.setText(data[6]);
                 return;
             }
         }
@@ -127,32 +182,25 @@ public class EditCounterProfile extends JPanel {
     }
 
     private void updateProfile() {
-        String name = txtName.getText().trim();
+        String name     = txtName.getText().trim();
         String username = txtUsername.getText().trim();
         String password = new String(txtPassword.getPassword()).trim();
-        String email = txtEmail.getText().trim();
-        String phone = txtPhone.getText().trim();
+        String email    = txtEmail.getText().trim();
+        String phone    = txtPhone.getText().trim();
 
         if (name.isEmpty() || username.isEmpty() || password.isEmpty() || email.isEmpty() || phone.isEmpty()) {
-            new ModernDialog("Please fill in all fields.");
-            return;
+            new ModernDialog("All fields must be filled!"); return;
         }
-
-        if (!email.contains("@")) {
-            new ModernDialog("Invalid email.");
-            return;
-        }
-
-        if (!phone.matches("0\\d{2}-\\d{3}-\\d{4}")) {
-            new ModernDialog("Phone format: 0XX-XXX-XXXX");
-            return;
-        }
+        if (!email.contains("@"))                     { new ModernDialog("Email must contain @"); return; }
+        if (!phone.matches("0\\d{2}-\\d{3}-\\d{4}")) { new ModernDialog("Phone format: 0XX-XXX-XXXX"); return; }
 
         List<String> lines = FileUtil.readFile("counter.txt");
         for (int i = 0; i < lines.size(); i++) {
             String[] data = lines.get(i).split(",");
             if (data[0].equals(counterID)) {
-                lines.set(i, counterID + "," + name + "," + username + "," + password + "," + email + "," + phone);
+                String date = data.length > 6 ? data[6] : dateLabel.getText();
+                lines.set(i, counterID + "," + name + "," + username + "," + password + ","
+                             + email + "," + phone + "," + date);
                 FileUtil.writeFile("counter.txt", lines);
                 new ModernDialog("Profile Updated Successfully!");
                 return;

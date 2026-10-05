@@ -1,87 +1,186 @@
 package ManagerUI;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 
 import UI.Components.*;
-import UI.MainUI;
 
 public class ManageUserUI extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private String managerId;
+
     private JComboBox<String> roleSelect;
-    private JTextArea displayArea;
+    private JTextField txtID, txtName, txtUsername, txtEmail, txtPhone, txtDate;
+    private JPasswordField txtPassword;
+    private JTextField txtSkills, txtExp;
+    private JLabel lblSkills, lblExp;
+    
+    private JTable table;
+    private DefaultTableModel tableModel;
 
     public ManageUserUI(String id) {
         this.managerId = id;
-        buildUI();
-    }
 
-    private void buildUI() {
-        setOpaque(false); // Makes this whole panel transparent to let the main gradient show
-        setLayout(new BorderLayout());
+        setOpaque(false);
+        setLayout(new GridBagLayout());
 
-        JPanel bg = new JPanel();
-        bg.setOpaque(false);
-        bg.setLayout(new GridBagLayout());
-        add(bg, BorderLayout.CENTER);
-
-        JPanel card = new RoundedPanel(25, new Color(35, 35, 50));
-        card.setPreferredSize(new Dimension(620, 460));
+        JPanel card = new RoundedPanel(30, new Color(35, 35, 50));
+        card.setPreferredSize(new Dimension(960, 580));
         card.setLayout(null);
-        bg.add(card);
 
-        // ================= TITLE =================
-        JLabel title = new JLabel("USER MANAGEMENT", SwingConstants.CENTER);
-        title.setBounds(160, 20, 300, 30);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        JLabel title = new JLabel("MANAGE USERS", SwingConstants.CENTER);
+        title.setBounds(0, 15, 960, 30);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
         title.setForeground(Color.WHITE);
         card.add(title);
 
-        // ================= ROLE SELECTOR =================
-        String[] roles = {"Manager", "Counter Staff", "Technician"};
-        roleSelect = new JComboBox<>(roles);
-        roleSelect.setBounds(40, 70, 200, 30);
-        roleSelect.setBackground(new Color(60, 60, 80));
-        roleSelect.setForeground(Color.WHITE);
-        roleSelect.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        roleSelect.setFocusable(false);
+        int startX = 30, fieldX = 140, fieldW = 180;
+        int y = 70;
+
+        addLabel(card, "Role:", startX, y);
+        roleSelect = new JComboBox<>(new String[]{"Manager", "Counter Staff", "Technician"});
+        styleCombo(roleSelect, fieldX, y, fieldW);
         card.add(roleSelect);
+        y += 40;
 
-        // ================= DISPLAY AREA =================
-        displayArea = new JTextArea();
-        displayArea.setEditable(false);
-        displayArea.setBackground(new Color(20, 20, 30));
-        displayArea.setForeground(new Color(0, 200, 255));
-        displayArea.setFont(new Font("Consolas", Font.PLAIN, 13));
-        displayArea.setBorder(new EmptyBorder(10, 10, 10, 10));
+        addLabel(card, "User ID:", startX, y);
+        txtID = addField(card, fieldX, y, fieldW);
+        y += 40;
 
-        JScrollPane scrollPane = new JScrollPane(displayArea);
-        scrollPane.setBounds(40, 120, 540, 250);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 80), 2));
-        scrollPane.getVerticalScrollBar().setBackground(new Color(35, 35, 50));
-        card.add(scrollPane);
+        addLabel(card, "Name:", startX, y);
+        txtName = addField(card, fieldX, y, fieldW);
+        y += 40;
 
-        // ================= BUTTONS =================
-        JButton addBtn = createButton("Add User", 50, 390, 140);
-        JButton editBtn = createButton("Edit User", 240, 390, 140);
-        JButton delBtn = createButton("Delete User", 430, 390, 140);
+        addLabel(card, "Username:", startX, y);
+        txtUsername = addField(card, fieldX, y, fieldW);
+        y += 40;
 
-        card.add(addBtn);
-        card.add(editBtn);
-        card.add(delBtn);
+        addLabel(card, "Password:", startX, y);
+        txtPassword = new JPasswordField();
+        styleField(txtPassword, fieldX, y, fieldW);
+        card.add(txtPassword);
+        y += 40;
 
-        // ================= ACTIONS =================
-        roleSelect.addActionListener(e -> loadUsers());
-        addBtn.addActionListener(e -> showAddUserDialog());
-        editBtn.addActionListener(e -> showEditUserDialog());
-        delBtn.addActionListener(e -> deleteUser());
+        addLabel(card, "Email:", startX, y);
+        txtEmail = addField(card, fieldX, y, fieldW);
+        y += 40;
 
-        loadUsers(); 
+        addLabel(card, "Phone:", startX, y);
+        txtPhone = addField(card, fieldX, y, fieldW);
+        y += 40;
+
+        addLabel(card, "Date Joined:", startX, y);
+        txtDate = addField(card, fieldX, y, fieldW);
+        y += 40;
+
+        lblSkills = addLabel(card, "Skills:", startX, y);
+        txtSkills = addField(card, fieldX, y, fieldW);
+        y += 40;
+
+        lblExp = addLabel(card, "Experience:", startX, y);
+        txtExp = addField(card, fieldX, y, fieldW);
+
+        toggleTechFields(false);
+
+        JButton createBtn = new ModernButton("Create");
+        JButton updateBtn = new ModernButton("Update");
+        JButton deleteBtn = new ModernButton("Delete");
+        JButton clearBtn  = new ModernButton("Clear");
+
+        createBtn.setBounds(30, 480, 135, 35);
+        updateBtn.setBounds(185, 480, 135, 35);
+        deleteBtn.setBounds(30, 525, 135, 35);
+        clearBtn.setBounds(185, 525, 135, 35);
+
+        card.add(createBtn);
+        card.add(updateBtn);
+        card.add(deleteBtn);
+        card.add(clearBtn);
+
+        JSeparator sep = new JSeparator(SwingConstants.VERTICAL);
+        sep.setBounds(340, 70, 2, 490);
+        sep.setForeground(new Color(80, 80, 110));
+        card.add(sep);
+
+        String[] columns = {"ID", "NAME", "USERNAME", "EMAIL", "PHONE", "JOINED"};
+        tableModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
+
+        table = new JTable(tableModel);
+        setupTableStyle();
+
+        table.getColumnModel().getColumn(0).setPreferredWidth(60);  
+        table.getColumnModel().getColumn(1).setPreferredWidth(120); 
+        table.getColumnModel().getColumn(2).setPreferredWidth(100); 
+        table.getColumnModel().getColumn(3).setPreferredWidth(140); 
+        table.getColumnModel().getColumn(4).setPreferredWidth(100); 
+        table.getColumnModel().getColumn(5).setPreferredWidth(80);  
+
+        JScrollPane sp = new JScrollPane(table);
+        sp.setBounds(360, 70, 570, 490);
+        sp.getViewport().setBackground(new Color(25, 25, 35));
+        sp.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(255, 50, 80), 2),
+            BorderFactory.createLineBorder(Color.WHITE, 1)
+        ));
+        card.add(sp);
+
+        roleSelect.addActionListener(e -> {
+            boolean isTech = roleSelect.getSelectedItem().equals("Technician");
+            toggleTechFields(isTech);
+            clearFields();
+            loadTableData();
+        });
+
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
+                String selectedId = table.getValueAt(table.getSelectedRow(), 0).toString();
+                loadUserDataIntoForm(selectedId);
+            }
+        });
+
+        createBtn.addActionListener(e -> createUser());
+        updateBtn.addActionListener(e -> updateUser());
+        deleteBtn.addActionListener(e -> deleteUser());
+        clearBtn.addActionListener(e -> clearFields());
+
+        loadTableData();
+        add(card);
+    }
+
+
+    private void setupTableStyle() {
+        table.setBackground(new Color(25, 25, 35));
+        table.setForeground(Color.WHITE);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        table.setRowHeight(28);
+        table.setGridColor(new Color(100, 100, 130));
+        table.setShowGrid(true);
+        table.setIntercellSpacing(new Dimension(1, 1));
+
+        table.setSelectionBackground(new Color(180, 35, 55));
+        table.setSelectionForeground(Color.WHITE);
+
+        table.getTableHeader().setOpaque(true);
+        table.getTableHeader().setBackground(new Color(255, 50, 80)); 
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+
+        table.getTableHeader().setResizingAllowed(false);
+        table.getTableHeader().setReorderingAllowed(false);
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
     }
 
     private String getFileName() {
@@ -91,376 +190,263 @@ public class ManageUserUI extends JPanel {
         return "technician.txt";
     }
 
-    private void loadUsers() {
-        displayArea.setText("");
-        try (BufferedReader br = new BufferedReader(new FileReader(getFileName()))) {
-            String line;
-            boolean hasUsers = false;
-            while ((line = br.readLine()) != null) {
-                hasUsers = true;
-                String[] data = line.split(",");
-                displayArea.append(String.format("ID: %-8s | Name: %-18s | User: %s\n", data[0], data[1], data[2]));
-            }
-            if(!hasUsers) {
-                 displayArea.setText("No users found in " + getFileName());
-            }
-        } catch (Exception ex) {
-            displayArea.setText("No users found in " + getFileName());
-        }
+    private void toggleTechFields(boolean visible) {
+        lblSkills.setVisible(visible);
+        txtSkills.setVisible(visible);
+        lblExp.setVisible(visible);
+        txtExp.setVisible(visible);
     }
 
-    // ==========================================
-    // CREATE FUNCTION
-    // ==========================================
-    private void showAddUserDialog() {
-        String role = (String) roleSelect.getSelectedItem();
-        
-        JDialog dialog = new JDialog(MainUI.instance, "Add " + role, true);
-        dialog.setUndecorated(true);
-        dialog.setSize(400, 550);
-        dialog.setLocationRelativeTo(MainUI.instance);
+    private void loadTableData() {
+        tableModel.setRowCount(0);
+        boolean isTech = roleSelect.getSelectedItem().equals("Technician");
 
-        JPanel panel = new JPanel(null);
-        panel.setBackground(new Color(35, 35, 50));
-        panel.setBorder(BorderFactory.createLineBorder(new Color(0, 200, 255), 2));
-        dialog.add(panel);
-
-        JLabel titleLabel = new JLabel("ADD " + role.toUpperCase(), SwingConstants.CENTER);
-        titleLabel.setBounds(0, 15, 400, 25);
-        titleLabel.setForeground(Color.WHITE);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        panel.add(titleLabel);
-
-        JPanel formGrid = new JPanel(new GridLayout(0, 2, 10, 15));
-        formGrid.setOpaque(false);
-        formGrid.setBounds(30, 60, 340, 380);
-        panel.add(formGrid);
-
-        JTextField idField = new JTextField();
-        JTextField nameField = new JTextField();
-        JTextField userField = new JTextField();
-        JPasswordField passField = new JPasswordField();
-        JTextField emailField = new JTextField();
-        JTextField phoneField = new JTextField();
-        JTextField dateField = new JTextField(); 
-        JTextField skillsField = new JTextField();
-        JTextField expField = new JTextField();
-
-        addFormField(formGrid, "ID (e.g. M001):", idField);
-        addFormField(formGrid, "Name:", nameField);
-        addFormField(formGrid, "Username:", userField);
-        addFormField(formGrid, "Password:", passField);
-        addFormField(formGrid, "Email:", emailField);
-        addFormField(formGrid, "Phone (0XX-XXX-XXXX):", phoneField);
-        addFormField(formGrid, "Employment (YYYY-MM-DD):", dateField);
-        
-        if (role.equals("Technician")) {
-            addFormField(formGrid, "Skills:", skillsField);
-            addFormField(formGrid, "Experience (Yrs):", expField);
-            dialog.setSize(400, 620); 
-        }
-
-        JButton saveBtn = new ModernButton("Save Record");
-        saveBtn.setBounds(70, dialog.getHeight() - 70, 120, 35);
-        panel.add(saveBtn);
-
-        JButton cancelBtn = new ModernButton("Cancel");
-        cancelBtn.setBounds(210, dialog.getHeight() - 70, 120, 35);
-        cancelBtn.addActionListener(e -> dialog.dispose());
-        panel.add(cancelBtn);
-
-        saveBtn.addActionListener(e -> {
-            String id = idField.getText().trim();
-            String name = nameField.getText().trim();
-            String username = userField.getText().trim();
-            String password = new String(passField.getPassword()).trim();
-            String email = emailField.getText().trim();
-            String phone = phoneField.getText().trim();
-            String date = dateField.getText().trim();
-            
-            String skills = "";
-            String exp = "";
-
-            if (role.equals("Technician")) {
-                skills = skillsField.getText().trim();
-                exp = expField.getText().trim();
-            }
-            
-            if (id.isEmpty() || name.isEmpty() || username.isEmpty() ||
-                password.isEmpty() || email.isEmpty() || phone.isEmpty() || date.isEmpty()) {
-                new ModernDialog("All fields must be filled!");
-                return;
-            }
-
-            if (role.equals("Manager") && !id.matches("M\\d{3}")) {
-                new ModernDialog("Manager ID must be MXXX");
-                return;
-            }
-
-            if (role.equals("Counter Staff") && !id.matches("CS\\d{3}")) {
-                new ModernDialog("Counter Staff ID must be CSXXX");
-                return;
-            }
-
-            if (role.equals("Technician") && !id.matches("T\\d{3}")) {
-                new ModernDialog("Technician ID must be TXXX");
-                return;
-            }
-
-            if (!email.contains("@")) {
-                new ModernDialog("Invalid email format!");
-                return;
-            }
-
-            if (!phone.matches("0\\d{2}-\\d{3}-\\d{4}")) {
-                new ModernDialog("Phone must be 0XX-XXX-XXXX");
-                return;
-            }
-
-            if (!date.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                new ModernDialog("Date must be YYYY-MM-DD");
-                return;
-            }
-
-            if (role.equals("Technician")) {
-                if (skills.isEmpty()) skills = "-";
-                if (!exp.matches("\\d+")) {
-                    new ModernDialog("Experience must be a number!");
-                    return;
-                }
-            }
-            
-            try (BufferedReader br = new BufferedReader(new FileReader(getFileName()))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    String[] data = line.split(",");
-                    if (data[0].equals(id)) {
-                        new ModernDialog("ID already exists!");
-                        return;
+        try (BufferedReader br = new BufferedReader(new FileReader(getFileName()))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split(",");
+                if (d.length >= 6) {
+                    String dateJoined = "";
+                    if (isTech) {
+                        dateJoined = (d.length >= 9) ? d[8] : "";
+                    } else {
+                        dateJoined = (d.length >= 7) ? d[6] : ""; 
                     }
+                    tableModel.addRow(new Object[]{d[0], d[1], d[2], d[4], d[5], dateJoined});
                 }
-            } catch (Exception ex) { }
-
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(getFileName(), true))) {
-                String record = id + "," + name + "," + username + "," +
-                                password + "," + email + "," + phone;
-
-                if (role.equals("Technician")) record += "," + skills + "," + exp + "," + date + ",0";
-                else record += "," + date;
-
-                bw.write(record);
-                bw.newLine();
-
-                new ModernDialog("User added successfully!");
-                dialog.dispose();
-                loadUsers();
-
-            } catch (Exception ex) { ex.printStackTrace(); }
-        });
-        
-        dialog.setVisible(true);
+            }
+        } catch (Exception e) {}
     }
 
-    // ==========================================
-    // UPDATE FUNCTION
-    // ==========================================
-    private void showEditUserDialog() {
-        String idToEdit = showModernInputDialog("Enter User ID to Edit:");
-        if (idToEdit == null || idToEdit.isEmpty()) return;
-
-        ArrayList<String> fileData = new ArrayList<>();
-        String[] userData = null;
-        boolean found = false;
-
+    private void loadUserDataIntoForm(String id) {
+        boolean isTech = roleSelect.getSelectedItem().equals("Technician");
         try (BufferedReader br = new BufferedReader(new FileReader(getFileName()))) {
             String line;
             while ((line = br.readLine()) != null) {
-                String[] data = line.split(",");
-                if (data[0].equals(idToEdit)) {
-                    userData = data;
-                    found = true;
+                String[] d = line.split(",");
+                if (d[0].equals(id)) {
+                    txtID.setText(d[0]);
+                    txtName.setText(d[1]);
+                    txtUsername.setText(d[2]);
+                    txtPassword.setText(d[3]);
+                    txtEmail.setText(d[4]);
+                    txtPhone.setText(d[5]);
+                    
+                    if (isTech) {
+                        txtSkills.setText(d.length >= 7 ? d[6] : "");
+                        txtExp.setText(d.length >= 8 ? d[7] : "");
+                        txtDate.setText(d.length >= 9 ? d[8] : "");
+                    } else {
+                        txtDate.setText(d.length >= 7 ? d[6] : "");
+                        txtSkills.setText("");
+                        txtExp.setText("");
+                    }
+                    break;
                 }
-                fileData.add(line);
             }
-        } catch (Exception ex) { ex.printStackTrace(); }
+        } catch (Exception e) {}
+    }
 
-        if (!found) {
-            new ModernDialog("User ID not found.");
+
+    private void createUser() {
+        if (!validateFields()) return;
+        
+        String id = txtID.getText().trim();
+        if (idExists(id)) {
+            new ModernDialog("ID already exists!");
             return;
         }
 
-        JDialog dialog = new JDialog(MainUI.instance, true);
-        dialog.setUndecorated(true);
-        dialog.setSize(380, 380);
-        dialog.setLocationRelativeTo(MainUI.instance);
-
-        JPanel panel = new JPanel(null);
-        panel.setBackground(new Color(35, 35, 50));
-        panel.setBorder(BorderFactory.createLineBorder(new Color(0, 200, 255), 2));
-        dialog.add(panel);
-
-        JLabel titleLabel = new JLabel("EDIT USER: " + idToEdit, SwingConstants.CENTER);
-        titleLabel.setBounds(0, 15, 380, 25);
-        titleLabel.setForeground(Color.WHITE);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        panel.add(titleLabel);
-
-        JPanel formGrid = new JPanel(new GridLayout(0, 2, 10, 15));
-        formGrid.setOpaque(false);
-        formGrid.setBounds(30, 60, 320, 200);
-        panel.add(formGrid);
-
-        JTextField userField = new JTextField(userData[2]);
-        JPasswordField passField = new JPasswordField(userData[3]);
-        JTextField emailField = new JTextField(userData[4]);
-        JTextField phoneField = new JTextField(userData[5]);
-
-        addFormField(formGrid, "Username:", userField);
-        addFormField(formGrid, "Password:", passField);
-        addFormField(formGrid, "Email:", emailField);
-        addFormField(formGrid, "Phone:", phoneField);
-
-        JButton saveBtn = new ModernButton("Update");
-        saveBtn.setBounds(60, 300, 110, 35);
-        panel.add(saveBtn);
-
-        JButton cancelBtn = new ModernButton("Cancel");
-        cancelBtn.setBounds(210, 300, 110, 35);
-        cancelBtn.addActionListener(e -> dialog.dispose());
-        panel.add(cancelBtn);
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(getFileName(), true))) {
+            bw.write(buildRecordString());
+            bw.newLine();
+        } catch (Exception e) { e.printStackTrace(); }
         
-        saveBtn.addActionListener(e -> {
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(getFileName(), false))) {
-                for (String line : fileData) {
-                    String[] data = line.split(",");
-                    if (data[0].equals(idToEdit)) {
-                        String updatedLine = data[0] + "," + data[1] + "," + userField.getText().trim() + "," +
-                                new String(passField.getPassword()).trim() + "," + emailField.getText().trim() + "," +
-                                phoneField.getText().trim();
-                        
-                        for(int i = 6; i < data.length; i++) updatedLine += "," + data[i];
-                        bw.write(updatedLine);
-                    } else {
-                        bw.write(line);
-                    }
-                    bw.newLine();
-                }
-                new ModernDialog("User updated successfully!");
-                dialog.dispose();
-                loadUsers();
-            } catch (Exception ex) { ex.printStackTrace(); }
-        });
-
-        dialog.setVisible(true);
+        new ModernDialog("User created successfully!");
+        SystemLogger.log(managerId, "Manager", "Created new " + roleSelect.getSelectedItem() + " account for ID: " + id);
+        clearFields();
+        loadTableData();
     }
 
-    // ==========================================
-    // DELETE FUNCTION
-    // ==========================================
-    private void deleteUser() {
-        String idToDelete = showModernInputDialog("Enter User ID to Delete:");
-        if (idToDelete == null || idToDelete.isEmpty()) return;
+    private void updateUser() {
+        String id = txtID.getText().trim();
+        if (id.isEmpty() || !idExists(id)) {
+            new ModernDialog("Select a valid user to update.");
+            return;
+        }
+        if (!validateFields()) return;
 
-        if (idToDelete.equals(managerId)) {
+        ModernDialog confirm = new ModernDialog("Are you sure you want to update " + id + "?", true);
+        if (!confirm.isConfirmed()) return; 
+
+        ArrayList<String> records = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(getFileName()))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.split(",")[0].equals(id)) {
+                    records.add(buildRecordString()); 
+                } else {
+                    records.add(line);
+                }
+            }
+        } catch (Exception e) {}
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(getFileName(), false))) {
+            for (String r : records) {
+                bw.write(r);
+                bw.newLine();
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        
+        new ModernDialog("User updated successfully!");
+        SystemLogger.log(managerId, "Manager", "Updated account details for ID: " + id);
+        loadTableData();
+    }
+
+    private void deleteUser() {
+        String id = txtID.getText().trim();
+        if (id.isEmpty() || !idExists(id)) {
+            new ModernDialog("Select a valid user to delete.");
+            return;
+        }
+        if (id.equals(managerId)) {
             new ModernDialog("You cannot delete your own account!");
             return;
         }
 
-        ArrayList<String> fileData = new ArrayList<>();
-        boolean found = false;
+        ModernDialog confirm = new ModernDialog("Are you sure you want to completely delete user " + id + "?", true);
+        if (!confirm.isConfirmed()) return; 
 
+        ArrayList<String> records = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(getFileName()))) {
             String line;
             while ((line = br.readLine()) != null) {
-                String[] data = line.split(",");
-                if (!data[0].equals(idToDelete)) fileData.add(line);
-                else found = true;
+                if (!line.split(",")[0].equals(id)) records.add(line);
             }
-        } catch (Exception ex) { ex.printStackTrace(); }
+        } catch (Exception e) {}
 
-        if (found) {
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(getFileName(), false))) {
-                for (String s : fileData) {
-                    bw.write(s);
-                    bw.newLine();
-                }
-                new ModernDialog("User successfully deleted.");
-                loadUsers(); 
-            } catch (Exception ex) { ex.printStackTrace(); }
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(getFileName(), false))) {
+            for (String r : records) {
+                bw.write(r);
+                bw.newLine();
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        
+        new ModernDialog("User deleted successfully!");
+        SystemLogger.log(managerId, "Manager", "Deleted account ID: " + id);
+        clearFields();
+        loadTableData();
+    }
+
+    private boolean validateFields() {
+        String role = (String) roleSelect.getSelectedItem();
+        String id = txtID.getText().trim();
+        
+        if (id.isEmpty() || txtName.getText().trim().isEmpty() || txtUsername.getText().trim().isEmpty() ||
+            new String(txtPassword.getPassword()).trim().isEmpty() || txtEmail.getText().trim().isEmpty() || 
+            txtPhone.getText().trim().isEmpty() || txtDate.getText().trim().isEmpty()) {
+            new ModernDialog("All base fields must be filled!");
+            return false;
+        }
+
+        if (role.equals("Manager") && !id.matches("M\\d{3}")) { new ModernDialog("Manager ID must be MXXX"); return false; }
+        if (role.equals("Counter Staff") && !id.matches("CS\\d{3}")) { new ModernDialog("Counter Staff ID must be CSXXX"); return false; }
+        if (role.equals("Technician") && !id.matches("T\\d{3}")) { new ModernDialog("Technician ID must be TXXX"); return false; }
+
+        if (!txtEmail.getText().trim().contains("@")) { new ModernDialog("Invalid email format!"); return false; }
+        if (!txtPhone.getText().trim().matches("0\\d{2}-\\d{3}-\\d{4}")) { new ModernDialog("Phone must be 0XX-XXX-XXXX"); return false; }
+        if (!txtDate.getText().trim().matches("\\d{4}-\\d{2}-\\d{2}")) { new ModernDialog("Date must be YYYY-MM-DD"); return false; }
+
+        if (role.equals("Technician")) {
+            if (txtSkills.getText().trim().isEmpty()) txtSkills.setText("-");
+            if (!txtExp.getText().trim().matches("\\d+")) {
+                new ModernDialog("Experience must be a numeric value!");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String buildRecordString() {
+        boolean isTech = roleSelect.getSelectedItem().equals("Technician");
+        String base = txtID.getText().trim() + "," + txtName.getText().trim() + "," + txtUsername.getText().trim() + "," +
+                      new String(txtPassword.getPassword()).trim() + "," + txtEmail.getText().trim() + "," + txtPhone.getText().trim();
+        
+        if (isTech) {
+            return base + "," + txtSkills.getText().trim() + "," + txtExp.getText().trim() + "," + txtDate.getText().trim() + ",0";
         } else {
-            new ModernDialog("User ID not found.");
+            return base + "," + txtDate.getText().trim();
         }
     }
 
-    // ==========================================
-    // UI HELPERS & COMPONENTS
-    // ==========================================
-    
-    private void addFormField(JPanel parent, String labelText, JTextField field) {
-        JLabel label = new JLabel(labelText);
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        parent.add(label);
-        
-        styleField(field);
-        parent.add(field);
+    private boolean idExists(String id) {
+        try (BufferedReader br = new BufferedReader(new FileReader(getFileName()))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.split(",")[0].equals(id)) return true;
+            }
+        } catch (Exception e) {}
+        return false;
     }
 
-    private void styleField(JTextField tf) {
-        tf.setBackground(new Color(60, 60, 80));
+    private void clearFields() {
+        txtID.setText("");
+        txtName.setText("");
+        txtUsername.setText("");
+        txtPassword.setText("");
+        txtEmail.setText("");
+        txtPhone.setText("");
+        txtDate.setText("");
+        txtSkills.setText("");
+        txtExp.setText("");
+        table.clearSelection();
+    }
+
+
+    private JLabel addLabel(JPanel card, String text, int x, int y) {
+        JLabel label = new JLabel(text);
+        label.setBounds(x, y, 100, 30);
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        card.add(label);
+        return label;
+    }
+
+    private JTextField addField(JPanel card, int x, int y, int w) {
+        JTextField tf = new JTextField();
+        styleField(tf, x, y, w);
+        card.add(tf);
+        return tf;
+    }
+
+    private void styleField(JTextField tf, int x, int y, int w) {
+        tf.setBounds(x, y, w, 30);
+        tf.setBackground(new Color(55, 55, 75));
         tf.setForeground(Color.WHITE);
         tf.setCaretColor(Color.WHITE);
-        tf.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
-        tf.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        tf.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(255, 50, 80), 1), 
+            BorderFactory.createEmptyBorder(4, 8, 4, 8)
+        ));
     }
 
-    private JButton createButton(String text, int x, int y, int width) {
-        JButton btn = new ModernButton(text);
-        btn.setBounds(x, y, width, 35);
-        return btn;
-    }
-
-    private String showModernInputDialog(String message) {
-        JDialog dialog = new JDialog(MainUI.instance, true);
-        dialog.setUndecorated(true);
-        dialog.setSize(320, 160);
-        dialog.setLocationRelativeTo(MainUI.instance);
-
-        JPanel panel = new JPanel(null);
-        panel.setBackground(new Color(35, 35, 50));
-        panel.setBorder(BorderFactory.createLineBorder(new Color(0, 200, 255), 2));
-        dialog.add(panel);
-
-        JLabel msg = new JLabel(message);
-        msg.setForeground(Color.WHITE);
-        msg.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        msg.setBounds(30, 20, 260, 30);
-        panel.add(msg);
-
-        JTextField input = new JTextField();
-        input.setBounds(30, 60, 260, 30);
-        styleField(input);
-        panel.add(input);
-
-        String[] result = new String[1]; 
-
-        JButton okBtn = new ModernButton("OK");
-        okBtn.setBounds(40, 110, 100, 30);
-        okBtn.addActionListener(e -> {
-            result[0] = input.getText().trim();
-            dialog.dispose();
+    private void styleCombo(JComboBox<String> box, int x, int y, int w) {
+        box.setBounds(x, y, w, 30);
+        box.setBackground(new Color(55, 55, 75));
+        box.setForeground(Color.WHITE);
+        box.setBorder(BorderFactory.createLineBorder(new Color(255, 50, 80), 1));
+        box.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
+            @Override
+            protected JButton createArrowButton() {
+                JButton btn = new JButton("▼");
+                btn.setBackground(new Color(55, 55, 75));
+                btn.setForeground(Color.WHITE);
+                btn.setBorder(BorderFactory.createEmptyBorder());
+                btn.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+                btn.setFocusPainted(false);
+                btn.setContentAreaFilled(false);
+                return btn;
+            }
         });
-        panel.add(okBtn);
-
-        JButton cancelBtn = new ModernButton("Cancel");
-        cancelBtn.setBounds(180, 110, 100, 30);
-        cancelBtn.addActionListener(e -> {
-            result[0] = null;
-            dialog.dispose();
-        });
-        panel.add(cancelBtn);
-
-        dialog.setVisible(true);
-        return result[0];
     }
 }

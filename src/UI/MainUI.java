@@ -36,6 +36,9 @@ public class MainUI extends JFrame {
         LogInUI loginPanel = new LogInUI();
         mainContainer.add(loginPanel, "LOGIN");
 
+        SignInUI registerPanel = new SignInUI();
+        mainContainer.add(registerPanel, "REGISTER");
+
         cardLayout.show(mainContainer, "MAIN_MENU");
 
         setupWindowResizing();
@@ -60,7 +63,6 @@ public class MainUI extends JFrame {
         JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         controls.setOpaque(false);
 
-        // Added a 5px margin to the top and right so the buttons don't touch the exact edge
         controls.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 5));
 
         JButton minimizeBtn = createControlButton(" – ", new Color(60, 60, 80));
@@ -107,7 +109,6 @@ public class MainUI extends JFrame {
         btn.setForeground(Color.WHITE);
         btn.setBackground(new Color(20, 20, 25));
 
-        // Automatically apply the hover effect
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent e) {
                 btn.setBackground(hoverColor);
@@ -125,18 +126,16 @@ public class MainUI extends JFrame {
             private int cursor = Cursor.DEFAULT_CURSOR;
             private Point startPos = null;
             private Rectangle startBounds = null;
-            private final int BORDER = 6; // Thickness of the invisible resizing border
+            private final int BORDER = 6; 
 
             @Override
             public void eventDispatched(AWTEvent event) {
                 if (!(event instanceof MouseEvent)) return;
                 MouseEvent me = (MouseEvent) event;
                 
-                // Only process events for our MainUI frame
                 Window win = SwingUtilities.getWindowAncestor(me.getComponent());
                 if (win != MainUI.this) return;
 
-                // Disable resizing if window is maximized
                 if (getExtendedState() == JFrame.MAXIMIZED_BOTH) {
                     if (getCursor().getType() != Cursor.DEFAULT_CURSOR) setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     return; 
@@ -149,7 +148,6 @@ public class MainUI extends JFrame {
                     int h = getHeight();
                     cursor = Cursor.DEFAULT_CURSOR;
 
-                    // Check corners and edges
                     if (p.x < BORDER && p.y < BORDER) cursor = Cursor.NW_RESIZE_CURSOR;
                     else if (p.x > w - BORDER && p.y < BORDER) cursor = Cursor.NE_RESIZE_CURSOR;
                     else if (p.x < BORDER && p.y > h - BORDER) cursor = Cursor.SW_RESIZE_CURSOR;
@@ -165,7 +163,7 @@ public class MainUI extends JFrame {
                     if (cursor != Cursor.DEFAULT_CURSOR) {
                         startPos = me.getLocationOnScreen();
                         startBounds = getBounds();
-                        me.consume(); // Prevents clicking the X button underneath the resize zone
+                        me.consume(); 
                     }
                 }
                 else if (me.getID() == MouseEvent.MOUSE_DRAGGED && cursor != Cursor.DEFAULT_CURSOR && startBounds != null) {
@@ -183,7 +181,6 @@ public class MainUI extends JFrame {
                     if (cursor == Cursor.S_RESIZE_CURSOR || cursor == Cursor.SW_RESIZE_CURSOR || cursor == Cursor.SE_RESIZE_CURSOR) bounds.height += dy;
                     if (cursor == Cursor.N_RESIZE_CURSOR || cursor == Cursor.NW_RESIZE_CURSOR || cursor == Cursor.NE_RESIZE_CURSOR) { bounds.y += dy; bounds.height -= dy; }
 
-                    // Prevent window from being sized too small
                     if (bounds.width >= 800 && bounds.height >= 550) {
                         setBounds(bounds);
                         validate();

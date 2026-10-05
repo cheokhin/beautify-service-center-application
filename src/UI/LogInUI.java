@@ -25,16 +25,13 @@ public class LogInUI extends JPanel {
         bg.setLayout(new GridBagLayout()); 
         add(bg, BorderLayout.CENTER);
 
-        // ================= TOP HEADER CARD =================
         JPanel topCard = new RoundedPanel(25, new Color(35, 35, 50));
         topCard.setPreferredSize(new Dimension(380, 100));
         topCard.setLayout(null);
 
         try {
-            // Load the raw, high-resolution original image
             Image originalLogo = new ImageIcon("logo.png").getImage();
             
-            // Create a custom panel to paint it crisply at render-time (Retina-ready!)
             JPanel logoPanel = new JPanel() {
                 private static final long serialVersionUID = 1L;
                 @Override
@@ -42,18 +39,16 @@ public class LogInUI extends JPanel {
                     super.paintComponent(g);
                     Graphics2D g2 = (Graphics2D) g;
                     
-                    // Turn on maximum quality rendering
                     g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                     g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     
-                    // Compress the massive image into this tiny 50x50 box dynamically
                     g2.drawImage(originalLogo, 0, 0, getWidth(), getHeight(), this);
                 }
             };
             
             logoPanel.setBounds(40, 25, 50, 50);
-            logoPanel.setOpaque(false); // Make sure the background is transparent
+            logoPanel.setOpaque(false); 
             topCard.add(logoPanel);
             
         } catch (Exception e) {
@@ -72,7 +67,6 @@ public class LogInUI extends JPanel {
         slogan.setForeground(new Color(0, 200, 255));
         topCard.add(slogan);
 
-        // ================= BOTTOM LOGIN CARD =================
         JPanel loginCard = new RoundedPanel(25, new Color(35, 35, 50));
         loginCard.setPreferredSize(new Dimension(380, 290)); 
         loginCard.setLayout(null);
@@ -128,21 +122,21 @@ public class LogInUI extends JPanel {
         registerLbl.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) { registerLbl.setForeground(Color.WHITE); }
             public void mouseExited(MouseEvent e) { registerLbl.setForeground(new Color(0, 200, 255)); }
-            public void mouseClicked(MouseEvent e) { MainUI.instance.checkManager(); }
+            public void mouseClicked(MouseEvent e) { 
+                MainUI.instance.showPage("REGISTER");
+            }
         });
         loginCard.add(registerLbl);
 
-        // ================= ASSEMBLE THE CARDS =================
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0; 
         gbc.gridy = 0;
-        gbc.insets = new Insets(10, 0, 10, 0); // Adds a clean 10px vertical gap between the cards
+        gbc.insets = new Insets(10, 0, 10, 0); 
         bg.add(topCard, gbc);
 
         gbc.gridy = 1;
         bg.add(loginCard, gbc);
 
-        // ================= ACTIONS & LISTENERS =================
         loginBtn.addActionListener(e -> login());
         exitBtn.addActionListener(e -> System.exit(0));
 
@@ -264,6 +258,9 @@ public class LogInUI extends JPanel {
 
                 if (dashboard != null) {
                     dashboard.openMenu(id);
+
+                    String role = id.startsWith("M") ? "Manager" : id.startsWith("CS") ? "Counter Staff" : id.startsWith("T") ? "Technician" : "Customer";
+                    SystemLogger.log(id, role, "Logged into the system");
                 }
 
                 loading.dispose();

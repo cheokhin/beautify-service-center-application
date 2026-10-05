@@ -1,181 +1,283 @@
 package ManagerUI;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import UI.Components.*;
 
 public class AnalyzedReportUI extends JPanel {
 
     private static final long serialVersionUID = 1L;
+    private String managerId;
 
-    public AnalyzedReportUI() {
-        buildUI();
+    private double totalRevenue = 0.0;
+    private int totalAppointments = 0;
+    private double averageRating = 0.0;
+    private int activeJobs = 0;
+    
+    private String mostPopularService = "N/A";
+    private int uniqueItemCount = 0; 
+
+    private Map<String, Integer> jobStatusCount = new HashMap<>();
+    private Map<String, Double> paymentMethodRevenue = new HashMap<>();
+
+    public AnalyzedReportUI(String id) {
+        this.managerId = id;
+        
+        setOpaque(false);
+        setLayout(new GridBagLayout());
+
+        loadAnalyticsData();
+        buildDashboard();
     }
 
-    private void buildUI() {
-        setOpaque(false); 
-        setLayout(new BorderLayout());
+    private void loadAnalyticsData() {
+        try (BufferedReader br = new BufferedReader(new FileReader("payment.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length >= 5) {
+                    try {
+                        double amt = Double.parseDouble(data[3]);
+                        String method = data[4];
+                        totalRevenue += amt;
+                        paymentMethodRevenue.put(method, paymentMethodRevenue.getOrDefault(method, 0.0) + amt);
+                    } catch (NumberFormatException e) {}
+                }
+            }
+        } catch (Exception e) {}
 
-        JPanel bg = new JPanel();
-        bg.setOpaque(false);
-        bg.setLayout(new GridBagLayout());
-        add(bg, BorderLayout.CENTER);
-
-        JPanel card = new RoundedPanel(25, new Color(35, 35, 50));
-        card.setPreferredSize(new Dimension(650, 520));
-        card.setLayout(null);
-        bg.add(card);
-
-        // ================= TITLE =================
-        JLabel title = new JLabel("ANALYZED REPORT", SwingConstants.CENTER);
-        title.setBounds(175, 20, 300, 30);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        title.setForeground(Color.WHITE);
-        card.add(title);
-
-        // ================= TEXT AREA =================
-        JTextArea reportArea = new JTextArea();
-        reportArea.setEditable(false);
-        reportArea.setBackground(new Color(20, 20, 30));
-        reportArea.setForeground(new Color(0, 255, 150));
-        reportArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        reportArea.setBorder(new EmptyBorder(15, 15, 15, 15));
-
-        JScrollPane scrollPane = new JScrollPane(reportArea);
-        scrollPane.setBounds(30, 65, 590, 380);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 80), 2));
-        scrollPane.getVerticalScrollBar().setBackground(new Color(35, 35, 50));
-        card.add(scrollPane);
-
-        // ================= ACTIONS =================
-        reportArea.setText(generateReport());
-        reportArea.setCaretPosition(0);
-    }
-
-    // ==========================================
-    // MAIN REPORT FUNCTION
-    // ==========================================
-    private String generateReport() {
-        int total = 0, completed = 0, pending = 0, cancelled = 0;
-        HashMap<String, Integer> serviceCount = new HashMap<>();
-        HashMap<String, Integer> techAssigned = new HashMap<>();
-        HashMap<String, Integer> techCompleted = new HashMap<>();
-        HashMap<String, Integer> techRatingTotal = new HashMap<>();
-        HashMap<String, Integer> techRatingCount = new HashMap<>();
-        HashMap<String, Double> revenueByService = new HashMap<>();
-        int positive = 0, neutral = 0, negative = 0;
-
+        Map<String, Integer> serviceCount = new HashMap<>();
         try (BufferedReader br = new BufferedReader(new FileReader("appointment.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-                String[] d = line.split(",");
-                if (d.length < 9) continue;
-                total++;
-                String service = d[3].trim();
-                String jobStatus = d[5].trim();
-                String techID = d[8].trim();
-
-                serviceCount.put(service, serviceCount.getOrDefault(service, 0) + 1);
-                if (jobStatus.equalsIgnoreCase("done")) completed++;
-                else if (jobStatus.equalsIgnoreCase("pending")) pending++;
-                else if (jobStatus.equalsIgnoreCase("cancelled")) cancelled++;
-
-                techAssigned.put(techID, techAssigned.getOrDefault(techID, 0) + 1);
-                if (jobStatus.equalsIgnoreCase("done")) techCompleted.put(techID, techCompleted.getOrDefault(techID, 0) + 1);
+                String[] data = line.split(",");
+                if (data.length >= 6) {
+                    totalAppointments++;
+                    String status = data[5].trim(); 
+                    jobStatusCount.put(status, jobStatusCount.getOrDefault(status, 0) + 1);
+                    
+                    if (status.equalsIgnoreCase("Pending") || status.equalsIgnoreCase("In Progress")) {
+                        activeJobs++;
+                    }
+                    
+                    String service = (data.length >= 7) ? data[6].trim() : data[3].trim();
+                    serviceCount.put(service, serviceCount.getOrDefault(service, 0) + 1);
+                }
             }
-        } catch (Exception e) { }
-
-        try (BufferedReader br = new BufferedReader(new FileReader("receipt.txt"))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-                String[] d = line.split(",");
-                if (d.length < 5) continue;
-                String service = getServiceType(d[2].trim());
-                if (service != null) revenueByService.put(service, revenueByService.getOrDefault(service, 0.0) + Double.parseDouble(d[4].trim()));
+            
+            int maxServiceCount = 0;
+            for (Map.Entry<String, Integer> entry : serviceCount.entrySet()) {
+                if (entry.getValue() > maxServiceCount) {
+                    maxServiceCount = entry.getValue();
+                    mostPopularService = entry.getKey();
+                }
             }
-        } catch (Exception e) { }
+        } catch (Exception e) {}
 
         try (BufferedReader br = new BufferedReader(new FileReader("comment.txt"))) {
             String line;
+            double totalStars = 0;
+            int reviewCount = 0;
             while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-                String[] d = line.split(",");
-                if (d.length < 5) continue;
-                int rating = Integer.parseInt(d[4].trim());
-                if (rating > 3) positive++;
-                else if (rating == 3) neutral++;
-                else negative++;
-                String techID = getTechnicianFromAppointment(d[0].trim());
-                if (techID != null) {
-                    techRatingTotal.put(techID, techRatingTotal.getOrDefault(techID, 0) + rating);
-                    techRatingCount.put(techID, techRatingCount.getOrDefault(techID, 0) + 1);
+                String[] data = line.split(",");
+                if (data.length >= 6) {
+                    try {
+                        totalStars += Double.parseDouble(data[5]);
+                        reviewCount++;
+                    } catch (Exception e) {}
                 }
             }
-        } catch (Exception e) { }
+            if (reviewCount > 0) averageRating = totalStars / reviewCount;
+        } catch (Exception e) {}
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("===============================================================\n");
-        sb.append("                      APPOINTMENT REPORT\n");
-        sb.append("===============================================================\n");
-        sb.append(String.format("%-20s : %d\n", "Total", total));
-        sb.append(String.format("%-20s : %d\n", "Completed", completed));
-        sb.append(String.format("%-20s : %d\n", "Pending", pending));
-        sb.append(String.format("%-20s : %d\n", "Cancelled", cancelled));
-        sb.append("\nService Breakdown:\n");
-        for (String s : serviceCount.keySet()) sb.append(String.format(" - %-15s : %d\n", s, serviceCount.get(s)));
-
-        sb.append("\n===============================================================\n");
-        sb.append("                    TECHNICIAN PERFORMANCE\n");
-        sb.append("===============================================================\n");
-        for (String tech : techAssigned.keySet()) {
-            double avgRating = techRatingCount.containsKey(tech) ? (double) techRatingTotal.get(tech) / techRatingCount.get(tech) : 0;
-            sb.append(String.format("Technician: %s\nAssigned: %d | Completed: %d | Avg Rating: %.2f\n---------------------------------------------\n",
-                    tech, techAssigned.getOrDefault(tech, 0), techCompleted.getOrDefault(tech, 0), avgRating));
-        }
-
-        sb.append("\n===============================================================\n");
-        sb.append("                      FINANCIAL REPORT\n");
-        sb.append("===============================================================\n");
-        double totalRevenue = 0;
-        for (String s : revenueByService.keySet()) {
-            totalRevenue += revenueByService.get(s);
-            sb.append(String.format("%-15s : RM %.2f\n", s, revenueByService.get(s)));
-        }
-        sb.append(String.format("TOTAL REVENUE   : RM %.2f\n", totalRevenue));
-
-        sb.append("\n===============================================================\n");
-        sb.append("                 CUSTOMER FEEDBACK ANALYSIS\n");
-        sb.append("===============================================================\n");
-        sb.append(String.format("%-20s : %d\n%-20s : %d\n%-20s : %d\n", "Positive (>3)", positive, "Neutral  (=3)", neutral, "Negative (<3)", negative));
-
-        return sb.toString();
-    }
-
-    private String getServiceType(String appID) {
-        try (BufferedReader br = new BufferedReader(new FileReader("appointment.txt"))) {
+        Set<String> uniqueParts = new HashSet<>();
+        try (BufferedReader br = new BufferedReader(new FileReader("inventory.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
-                String[] d = line.split(",");
-                if (d.length >= 4 && d[0].trim().equals(appID)) return d[3].trim();
+                String[] data = line.split(",");
+                if (data.length >= 2) {
+                    uniqueParts.add(data[1].trim().toUpperCase());
+                }
             }
-        } catch (Exception e) { }
-        return null;
+        } catch (Exception e) {}
+        
+        uniqueItemCount = uniqueParts.size();
     }
 
-    private String getTechnicianFromAppointment(String appID) {
-        try (BufferedReader br = new BufferedReader(new FileReader("appointment.txt"))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] d = line.split(",");
-                if (d.length >= 9 && d[0].trim().equals(appID)) return d[8].trim();
+    private void buildDashboard() {
+        JPanel card = new RoundedPanel(30, new Color(35, 35, 50));
+        card.setPreferredSize(new Dimension(960, 580));
+        card.setLayout(null);
+
+        JLabel title = new JLabel("ANALYTICS & REPORTS", SwingConstants.CENTER);
+        title.setBounds(0, 15, 960, 30);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        title.setForeground(Color.WHITE);
+        card.add(title);
+        
+        JLabel subtitle = new JLabel("Report Generated by: " + managerId, SwingConstants.CENTER);
+        subtitle.setBounds(0, 45, 960, 20);
+        subtitle.setFont(new Font("Segoe UI", Font.ITALIC, 13));
+        subtitle.setForeground(new Color(150, 150, 170));
+        card.add(subtitle);
+
+        card.add(createKPICard("Total Revenue", String.format("RM %.2f", totalRevenue), 40, 80));
+        card.add(createKPICard("Total Jobs", String.valueOf(totalAppointments), 340, 80));
+        card.add(createKPICard("Active Jobs", String.valueOf(activeJobs), 640, 80));
+        
+        card.add(createKPICard("Average Rating", String.format("%.1f / 5.0", averageRating), 40, 185));
+        card.add(createKPICard("Popular Service", mostPopularService, 340, 185));
+        card.add(createKPICard("Unique Parts", String.valueOf(uniqueItemCount), 640, 185));
+
+        JPanel statusChart = new CustomBarChart("Job Status Breakdown", jobStatusCount, new Color(0, 200, 255));
+        statusChart.setBounds(40, 290, 420, 260); 
+        card.add(statusChart);
+
+        Map<String, Integer> revMap = new HashMap<>();
+        for (Map.Entry<String, Double> entry : paymentMethodRevenue.entrySet()) {
+            revMap.put(entry.getKey(), entry.getValue().intValue());
+        }
+        
+        JPanel revenueChart = new CustomBarChart("Revenue by Method (RM)", revMap, new Color(255, 50, 80));
+        revenueChart.setBounds(500, 290, 420, 260);
+        card.add(revenueChart);
+
+        add(card);
+    }
+
+
+    private JPanel createKPICard(String titleText, String valueText, int x, int y) {
+        JPanel kpiCard = new RoundedPanel(20, new Color(45, 45, 65));
+        kpiCard.setBounds(x, y, 280, 90); 
+        kpiCard.setLayout(null);
+
+        JLabel title = new JLabel(titleText, SwingConstants.CENTER);
+        title.setBounds(0, 15, 280, 20);
+        title.setForeground(new Color(180, 180, 200));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        kpiCard.add(title);
+
+        JLabel value = new JLabel(valueText, SwingConstants.CENTER);
+        value.setBounds(0, 40, 280, 35);
+        value.setForeground(Color.WHITE);
+        
+        if (titleText.contains("Revenue")) value.setForeground(new Color(255, 50, 80));
+        if (titleText.contains("Rating")) value.setForeground(new Color(255, 180, 0)); 
+        if (titleText.contains("Active")) value.setForeground(new Color(0, 200, 255)); 
+        if (titleText.contains("Popular")) value.setForeground(new Color(180, 100, 255)); 
+        
+        if (titleText.contains("Parts")) value.setForeground(new Color(255, 150, 50)); 
+        
+        value.setFont(new Font("Segoe UI", Font.BOLD, 26)); 
+        
+        if (valueText.length() > 10) {
+            value.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        }
+        
+        kpiCard.add(value);
+
+        return kpiCard;
+    }
+
+    
+    class CustomBarChart extends JPanel {
+        private static final long serialVersionUID = 1L;
+        private String title;
+        private Map<String, Integer> data;
+        private Color barColor;
+        private int maxVal = 0;
+
+        public CustomBarChart(String title, Map<String, Integer> data, Color barColor) {
+            this.title = title;
+            this.data = data;
+            this.barColor = barColor;
+
+            setOpaque(false);
+            
+            for (int val : data.values()) {
+                if (val > maxVal) maxVal = val;
             }
-        } catch (Exception e) { }
-        return null;
+            if (maxVal == 0) maxVal = 1; 
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g;
+            
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            g2.setColor(new Color(25, 25, 35));
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            FontMetrics fm = g2.getFontMetrics();
+            int titleWidth = fm.stringWidth(title);
+            g2.drawString(title, (getWidth() - titleWidth) / 2, 28);
+
+            if (data.isEmpty()) {
+                g2.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+                g2.setColor(Color.GRAY);
+                g2.drawString("No data available", getWidth() / 2 - 50, getHeight() / 2);
+                return;
+            }
+
+            int startX = 60;
+            int startY = getHeight() - 40;
+            int chartWidth = getWidth() - 80;
+            
+            int chartHeight = getHeight() - 110; 
+
+            g2.setColor(new Color(80, 80, 110));
+            g2.setStroke(new BasicStroke(2));
+            g2.drawLine(startX, startY, startX + chartWidth, startY); 
+            g2.drawLine(startX, startY, startX, startY - chartHeight); 
+
+            int numBars = data.size();
+            int barGap = 30;
+            int barWidth = (chartWidth - (barGap * (numBars + 1))) / numBars;
+            if (barWidth > 80) barWidth = 80; 
+
+            int currentX = startX + barGap;
+
+            for (Map.Entry<String, Integer> entry : data.entrySet()) {
+                String label = entry.getKey();
+                int value = entry.getValue();
+
+                int barH = (int) (((double) value / maxVal) * chartHeight);
+                int barY = startY - barH;
+
+                g2.setColor(new Color(barColor.getRed(), barColor.getGreen(), barColor.getBlue(), 180));
+                g2.fillRect(currentX, barY, barWidth, barH);
+                
+                g2.setColor(barColor);
+                g2.drawRect(currentX, barY, barWidth, barH);
+
+                g2.setColor(Color.WHITE);
+                g2.setFont(new Font("Segoe UI", Font.BOLD, 12));
+                String valStr = String.valueOf(value);
+                int valStrW = g2.getFontMetrics().stringWidth(valStr);
+                g2.drawString(valStr, currentX + (barWidth - valStrW) / 2, barY - 10);
+
+                g2.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+                int labelW = g2.getFontMetrics().stringWidth(label);
+                
+                if (labelW > barWidth + barGap) {
+                    label = label.substring(0, 5) + "..";
+                    labelW = g2.getFontMetrics().stringWidth(label);
+                }
+                g2.drawString(label, currentX + (barWidth - labelW) / 2, startY + 20);
+
+                currentX += barWidth + barGap;
+            }
+        }
     }
 }

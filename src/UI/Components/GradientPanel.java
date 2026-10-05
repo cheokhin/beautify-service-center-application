@@ -24,7 +24,6 @@ public class GradientPanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         
-        // Uses the assigned colors to paint the gradient
         GradientPaint gp = new GradientPaint(
                 0, 0, colorStart,
                 getWidth(), getHeight(), colorEnd

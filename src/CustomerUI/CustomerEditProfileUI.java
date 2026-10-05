@@ -4,15 +4,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
-import UI.Components.*; 
+import UI.Components.*;
 
 public class CustomerEditProfileUI extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private String customerID;
-    private JTextField txtID, txtName, txtUsername, txtEmail, txtPhone, txtModel, txtReg, txtYear;
+    private JLabel txtID, typeLabel;
+    private JTextField txtName, txtUsername, txtEmail, txtPhone, txtModel, txtReg, txtYear;
     private JPasswordField txtPassword;
-    private JComboBox<String> typeBox;
 
     public CustomerEditProfileUI(String id) {
         this.customerID = id;
@@ -21,7 +21,7 @@ public class CustomerEditProfileUI extends JPanel {
         setLayout(new GridBagLayout());
 
         JPanel card = new RoundedPanel(30, new Color(35, 35, 50));
-        card.setPreferredSize(new Dimension(650, 620)); 
+        card.setPreferredSize(new Dimension(650, 620));
         card.setLayout(null);
 
         JLabel title = new JLabel("EDIT CUSTOMER PROFILE", SwingConstants.CENTER);
@@ -30,51 +30,101 @@ public class CustomerEditProfileUI extends JPanel {
         title.setFont(new Font("Segoe UI", Font.BOLD, 24));
         card.add(title);
 
-        int y = 80;
-        int col1 = 50, col2 = 150, col3 = 350, col4 = 440;
+        JSeparator topSep = new JSeparator();
+        topSep.setBounds(30, 63, 590, 1);
+        topSep.setForeground(new Color(55, 55, 80));
+        card.add(topSep);
 
-        addLabel(card, "ID:", col1, y); txtID = addField(card, col2, y, 160); txtID.setEditable(false);
-        addLabel(card, "Name:", col3, y); txtName = addField(card, col4, y, 160); y += 45;
+        card.add(makeSectionLabel("ACCOUNT", 30, 73));
+        card.add(makeSectionLabel("CONTACT", 30, 253));
+        card.add(makeSectionLabel("VEHICLE", 30, 363));
 
-        addLabel(card, "Username:", col1, y); txtUsername = addField(card, col2, y, 160);
-        addLabel(card, "Password:", col3, y);
-        
+        int y = 90;
+        card.add(makeHintLabel("Customer ID", 50, y));
+        card.add(makeHintLabel("Full name", 350, y));
+        y += 18;
+
+        txtID = new JLabel();
+        txtID.setBounds(50, y, 250, 34);
+        txtID.setForeground(new Color(210, 210, 235));
+        txtID.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        card.add(txtID);
+
+        txtName = addField(card, 350, y, 250);
+
+        y += 55;
+        card.add(makeHintLabel("Username", 50, y));
+        card.add(makeHintLabel("Password", 350, y));
+        y += 18;
+        txtUsername = addField(card, 50, y, 250);
+
         txtPassword = new JPasswordField();
         styleField(txtPassword);
-        txtPassword.setBounds(col4, y, 100, 30);
+        txtPassword.setBounds(350, y, 190, 34);
         txtPassword.setEchoChar('•');
         card.add(txtPassword);
 
         JButton eyeBtn = new JButton("Show");
-        eyeBtn.setBounds(550, y, 50, 30);
+        eyeBtn.setBounds(548, y, 52, 34);
         eyeBtn.setFocusPainted(false);
-        eyeBtn.setBackground(new Color(60, 60, 80));
-        eyeBtn.setForeground(Color.WHITE);
-        eyeBtn.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        eyeBtn.setMargin(new Insets(0,0,0,0));
+        eyeBtn.setBackground(new Color(55, 55, 75));
+        eyeBtn.setForeground(new Color(180, 180, 210));
+        eyeBtn.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        eyeBtn.setBorder(BorderFactory.createLineBorder(new Color(80, 80, 110)));
         eyeBtn.addActionListener(e -> {
-            if (txtPassword.getEchoChar() == (char)0) { txtPassword.setEchoChar('•'); eyeBtn.setText("Show"); }
-            else { txtPassword.setEchoChar((char)0); eyeBtn.setText("Hide"); }
+            if (txtPassword.getEchoChar() == (char) 0) {
+                txtPassword.setEchoChar('•');
+                eyeBtn.setText("Show");
+            } else {
+                txtPassword.setEchoChar((char) 0);
+                eyeBtn.setText("Hide");
+            }
         });
-        card.add(eyeBtn); y += 45;
+        card.add(eyeBtn);
 
-        addLabel(card, "Email:", col1, y); txtEmail = addField(card, col2, y, 160);
-        addLabel(card, "Phone:", col3, y); txtPhone = addField(card, col4, y, 160); y += 45;
+        JSeparator sep1 = new JSeparator();
+        sep1.setBounds(30, 243, 590, 1);
+        sep1.setForeground(new Color(55, 55, 80));
+        card.add(sep1);
 
-        addLabel(card, "Model:", col1, y); txtModel = addField(card, col2, y, 160);
-        addLabel(card, "Reg No:", col3, y); txtReg = addField(card, col4, y, 160); y += 45;
+        y = 270;
+        card.add(makeHintLabel("Email", 50, y));
+        card.add(makeHintLabel("Phone", 350, y));
+        y += 18;
+        txtEmail = addField(card, 50, y, 250);
+        txtPhone = addField(card, 350, y, 250);
 
-        addLabel(card, "Year:", col1, y); txtYear = addField(card, col2, y, 160);
-        addLabel(card, "Type:", col3, y);
-        typeBox = new JComboBox<>(new String[]{"Walk-in", "Booking"});
-        typeBox.setBounds(col4, y, 160, 30);
-        typeBox.setBackground(Color.WHITE);
-        typeBox.setEnabled(false); // Type is usually fixed
-        card.add(typeBox); y += 60;
+        JSeparator sep2 = new JSeparator();
+        sep2.setBounds(30, 353, 590, 1);
+        sep2.setForeground(new Color(55, 55, 80));
+        card.add(sep2);
 
-        // Centered Button
-        JButton updateBtn = new ModernButton(" Update Profile");
-        updateBtn.setBounds(250, y, 150, 40);
+        y = 380;
+        card.add(makeHintLabel("Car model", 50, y));
+        card.add(makeHintLabel("Registration no.", 350, y));
+        y += 18;
+        txtModel = addField(card, 50, y, 250);
+        txtReg   = addField(card, 350, y, 250);
+
+        y += 55;
+        card.add(makeHintLabel("Year", 50, y));
+        card.add(makeHintLabel("Type", 350, y));
+        y += 18;
+        txtYear = addField(card, 50, y, 250);
+
+        typeLabel = new JLabel();
+        typeLabel.setBounds(350, y, 250, 34);
+        typeLabel.setForeground(new Color(210, 210, 235));
+        typeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        card.add(typeLabel);
+
+        JSeparator sep3 = new JSeparator();
+        sep3.setBounds(30, 535, 590, 1);
+        sep3.setForeground(new Color(55, 55, 80));
+        card.add(sep3);
+
+        JButton updateBtn = new ModernButton("Save changes");
+        updateBtn.setBounds(250, 557, 150, 40);
         card.add(updateBtn);
 
         loadProfile();
@@ -82,30 +132,38 @@ public class CustomerEditProfileUI extends JPanel {
         add(card);
     }
 
-    private void addLabel(JPanel panel, String text, int x, int y) {
-        JLabel label = new JLabel(text);
-        label.setBounds(x, y, 90, 30);
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        panel.add(label);
+    private JLabel makeSectionLabel(String text, int x, int y) {
+        JLabel l = new JLabel(text);
+        l.setBounds(x, y, 300, 14);
+        l.setForeground(new Color(120, 120, 160));
+        l.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        return l;
     }
 
-    private JTextField addField(JPanel panel, int x, int y, int width) {
-        JTextField field = new JTextField();
-        styleField(field);
-        field.setBounds(x, y, width, 30);
-        panel.add(field);
-        return field;
+    private JLabel makeHintLabel(String text, int x, int y) {
+        JLabel l = new JLabel(text);
+        l.setBounds(x, y, 200, 14);
+        l.setForeground(new Color(150, 150, 185));
+        l.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        return l;
+    }
+
+    private JTextField addField(JPanel panel, int x, int y, int w) {
+        JTextField f = new JTextField();
+        styleField(f);
+        f.setBounds(x, y, w, 34);
+        panel.add(f);
+        return f;
     }
 
     private void styleField(JTextField tf) {
-        tf.setBackground(Color.WHITE);
-        tf.setForeground(Color.BLACK);
-        tf.setCaretColor(Color.BLACK);
-        tf.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tf.setBackground(new Color(28, 28, 45));
+        tf.setForeground(new Color(210, 210, 235));
+        tf.setCaretColor(new Color(180, 180, 220));
+        tf.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         tf.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(180, 180, 180)),
-                BorderFactory.createEmptyBorder(5, 8, 5, 8)
+            BorderFactory.createLineBorder(new Color(80, 80, 110)),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
     }
 
@@ -115,32 +173,43 @@ public class CustomerEditProfileUI extends JPanel {
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",");
                 if (data[0].equals(customerID)) {
-                    txtID.setText(data[0]); txtName.setText(data[1]); txtUsername.setText(data[2]); txtPassword.setText(data[3]);
-                    txtEmail.setText(data[4]); txtPhone.setText(data[5]); txtModel.setText(data[6]); txtReg.setText(data[7]);
-                    txtYear.setText(data[8]); typeBox.setSelectedItem(data[9]); break;
+                    txtID.setText(data[0]);       txtName.setText(data[1]);
+                    txtUsername.setText(data[2]); txtPassword.setText(data[3]);
+                    txtEmail.setText(data[4]);    txtPhone.setText(data[5]);
+                    txtModel.setText(data[6]);    txtReg.setText(data[7]);
+                    txtYear.setText(data[8]);     typeLabel.setText(data[9]);
+                    break;
                 }
             }
         } catch (Exception e) { new ModernDialog("Error loading profile!"); }
     }
 
     private void updateProfile() {
-        String name = txtName.getText().trim(), username = txtUsername.getText().trim();
-        String password = new String(txtPassword.getPassword()).trim(), email = txtEmail.getText().trim();
-        String phone = txtPhone.getText().trim(), model = txtModel.getText().trim(), reg = txtReg.getText().trim(), year = txtYear.getText().trim();
+        String name     = txtName.getText().trim();
+        String username = txtUsername.getText().trim();
+        String password = new String(txtPassword.getPassword()).trim();
+        String email    = txtEmail.getText().trim();
+        String phone    = txtPhone.getText().trim();
+        String model    = txtModel.getText().trim();
+        String reg      = txtReg.getText().trim();
+        String year     = txtYear.getText().trim();
 
-        if (name.isEmpty() || username.isEmpty() || password.isEmpty() || email.isEmpty() || phone.isEmpty() || model.isEmpty() || reg.isEmpty() || year.isEmpty()) {
+        if (name.isEmpty() || username.isEmpty() || password.isEmpty() || email.isEmpty() ||
+            phone.isEmpty() || model.isEmpty() || reg.isEmpty() || year.isEmpty()) {
             new ModernDialog("All fields must be filled!"); return;
         }
-        if (!email.contains("@")) { new ModernDialog("Email must contain @"); return; }
-        if (!phone.matches("\\d+")) { new ModernDialog("Phone must be numeric!"); return; }
-        if (!year.matches("\\d{4}")) { new ModernDialog("Year must be 4 digits!"); return; }
+        if (!email.contains("@"))                      { new ModernDialog("Email must contain @"); return; }
+        if (!phone.matches("0\\d{2}-\\d{3}-\\d{4}"))   { new ModernDialog("Phone must be numeric!"); return; }
+        if (!year.matches("\\d{4}"))                   { new ModernDialog("Year must be 4 digits!"); return; }
 
         ArrayList<String> list = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader("customer.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.split(",")[0].equals(customerID)) {
-                    line = txtID.getText() + "," + name + "," + username + "," + password + "," + email + "," + phone + "," + model + "," + reg + "," + year + "," + typeBox.getSelectedItem();
+                    line = customerID + "," + name + "," + username + "," + password + ","
+                         + email + "," + phone + "," + model + "," + reg + "," + year + ","
+                         + typeLabel.getText();
                 }
                 list.add(line);
             }
